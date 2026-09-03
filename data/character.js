@@ -106,18 +106,54 @@ const CHARACTER = {
   ],
 
   classFeatures: [
-    "A Thousand Faces",
-    "Animal companion",
-    "Druidic weapon proficiency",
-    "Nature sense",
-    "Resist nature's lure",
-    "Secret language: Druidic",
-    "Spontaneous casting (summon nature's ally)",
-    "Trackless step",
-    "Venom immunity",
-    "Wild empathy (+15)",
-    "Wild shape 4/day — Tiny to Large size, and Plant",
-    "Woodland stride",
+    {
+      name: "A Thousand Faces",
+      description: "At 13th level, a druid gains the supernatural ability to change her appearance at will, as if using disguise self, but only while in her normal form. (PH36)",
+    },
+    {
+      name: "Animal companion",
+      description: "A druid may begin play with an animal companion selected from a druid-specific list (badger, camel, dire rat, dog, eagle, hawk, horse, owl, pony, snake, wolf...). The companion is superior to a normal animal of its kind and gains bonus HD, skill points, feats, and special abilities as the druid advances in level (PH35, Table: Druid Animal Companions). It obeys the druid's orders as well as any well-trained animal.",
+    },
+    {
+      name: "Druidic weapon proficiency",
+      description: "Druids are proficient with the club, dagger, dart, quarterstaff, scimitar, sickle, shortspear, sling, and spear, and with all their natural weapons in any form assumed with wild shape — but no others. A druid who wears prohibited armor (metal) or carries a metal shield or weapon is unable to cast spells or use any supernatural or spell-like class ability while doing so, and for 24 hours afterward. (PH35)",
+    },
+    {
+      name: "Nature sense",
+      description: "A druid gains a +2 bonus on Knowledge (nature) and Survival checks. (PH35)",
+    },
+    {
+      name: "Resist nature's lure",
+      description: "Starting at 4th level, a druid gains a +4 bonus on saving throws against the spell-like abilities of fey. (PH36)",
+    },
+    {
+      name: "Secret language: Druidic",
+      description: "Druids know a secret language, Druidic, taught only to other druids and never to outsiders; it doesn't count against a druid's normal languages known. Druidic has its own alphabet and can be used to leave hidden trail markers or messages that only another druid will spot; a rogue (only) can use Use Magic Device to decipher such a message, DC 20. (PH35)",
+    },
+    {
+      name: "Spontaneous casting (summon nature's ally)",
+      description: "A druid can channel stored spell energy into summoning spells she hasn't prepared. She can \"lose\" any prepared spell that isn't a domain spell in order to cast any summon nature's ally spell of the same level or lower. (PH35)",
+    },
+    {
+      name: "Trackless step",
+      description: "Starting at 3rd level, a druid leaves no trail in natural surroundings and cannot be tracked, though she may choose to leave a trail if she wishes. (PH36)",
+    },
+    {
+      name: "Venom immunity",
+      description: "At 9th level, a druid gains immunity to all poisons. (PH36)",
+    },
+    {
+      name: "Wild empathy (+15)",
+      description: "A druid can use body language, vocalizations, and demeanor to improve the attitude of an animal, working like a Diplomacy check to improve another creature's attitude. She rolls 1d20 + druid level + Charisma modifier against a DC set by the animal's starting attitude (usually indifferent for domesticated animals, unfriendly for wild ones); both druid and animal must be within 30 ft. of each other, and it takes about 1 minute (as influencing an NPC would). She can also try this on a magical beast with Intelligence 1–2, at a −4 penalty. (PH35)",
+    },
+    {
+      name: "Wild shape 4/day — Tiny to Large size, and Plant",
+      description: "A druid can turn herself into any Small or Medium animal and back again, gaining new size categories and creature types (including plant, as noted here) and more uses per day as she gains levels (PH36–37). In animal form she retains her own mind, alignment, and personality; loses her natural attacks/movement/senses in favor of the new form's, but keeps extraordinary special attacks of the new form (not supernatural or spell-like ones). Changing shape (in either direction) is a standard action that doesn't provoke an attack of opportunity, and reverting to her normal form early is a free action.",
+    },
+    {
+      name: "Woodland stride",
+      description: "Starting at 2nd level, a druid may move through natural thorns, briars, overgrown areas, and similar terrain at her normal speed, without taking damage or suffering any other impairment. Terrain that has been magically manipulated to impede motion still affects her normally. (PH36)",
+    },
   ],
 
   // Skills as shown on the sheet. `ranks` is what's actually invested;

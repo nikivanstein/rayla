@@ -266,7 +266,29 @@ main {
    --------------------------------------------------------------------- */
 
 .hero { margin-bottom: 44px; }
-.hero__inner { max-width: 720px; }
+.hero__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 40px;
+}
+.hero__inner { max-width: 720px; flex: 1 1 auto; }
+.hero__portrait {
+  flex: 0 0 auto;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--gold);
+  box-shadow: 0 0 0 6px var(--surface), 0 8px 28px rgba(0, 0, 0, 0.4);
+}
+.hero__portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
+@media (max-width: 760px) {
+  .hero__top { flex-direction: column-reverse; align-items: center; gap: 24px; text-align: center; }
+  .hero__portrait { width: 160px; height: 160px; }
+  .hero__facts { justify-items: center; }
+}
+[data-theme="eink"] .hero__portrait { box-shadow: none; border-width: 2px; }
 .hero__eyebrow {
   font-size: 13px;
   color: var(--gold);
@@ -583,6 +605,11 @@ main {
 .skills-table tr td:first-child { color: var(--text); font-weight: 500; }
 .skills-table td.num, .skills-table th.num { text-align: right; font-family: var(--font-mono); }
 .skills-table tr:hover td { background: var(--surface); }
+.skills-table tr.is-buffed td { background: var(--bg-soft); }
+.skills-table tr.is-buffed td:first-child { color: var(--accent-strong); box-shadow: inset 2px 0 0 var(--accent); }
+.buffed-tag { color: var(--accent-strong); font-weight: 400; }
+.dc-delta { color: var(--accent-strong); }
+table.spell-table td.is-buffed { color: var(--accent-strong); font-weight: 700; }
 
 details.reveal { margin-top: 14px; }
 details.reveal > summary {
