@@ -141,6 +141,16 @@
     return { fort: calc("fort", "CON"), reflex: calc("reflex", "DEX"), will: calc("will", "WIS") };
   }
 
+  // A Constitution change retroactively adjusts hit points by (new mod -
+  // base mod) per Hit Die (PH84) — Rayla's Hit Dice count is baked into
+  // her "13d8" hitDice string, so we read the level from that rather
+  // than duplicating it in the data file.
+  function getEffectiveMaxHP(abilities) {
+    const level = parseInt(CHARACTER.hp.hitDice, 10) || 1;
+    const conDelta = abilities.CON.mod - CHARACTER.abilities.CON.mod;
+    return CHARACTER.hp.total + conDelta * level;
+  }
+
   function getEffectiveStats() {
     const buffTotals = getBuffTotals();
     const abilities = getEffectiveAbilities(buffTotals);
@@ -150,6 +160,7 @@
       ac: getEffectiveAC(buffTotals),
       saves: getEffectiveSaves(buffTotals, abilities),
       speed: CHARACTER.speed.value + buffTotals.speed,
+      maxHP: getEffectiveMaxHP(abilities),
     };
   }
 
@@ -185,6 +196,9 @@
     renderOverview();
     renderAbilities();
     renderCombat();
+    renderSkills();
+    renderHpPanel();
+    renderSpells();
   }
 
   function hpTrackerPanel(opts) {
@@ -229,13 +243,15 @@
 
   function renderHpPanel() {
     const session = readSession();
+    const stats = getEffectiveStats();
+    const conDelta = stats.maxHP - CHARACTER.hp.total;
     const panel = $("#hpPanel");
     panel.innerHTML = "";
     panel.appendChild(hpTrackerPanel({
       title: "Rayla's Hit Points",
-      max: CHARACTER.hp.total,
+      max: stats.maxHP,
       current: session.currentHP,
-      sub: CHARACTER.hp.hitDice,
+      sub: CHARACTER.hp.hitDice + (conDelta ? ` — max is ${modStr(conDelta)} from buffed Constitution (base ${CHARACTER.hp.total})` : ""),
       onChange: (v) => { writeSession({ currentHP: v }); renderOverview(); },
     }));
   }
@@ -400,8 +416,9 @@
     $("#f-languages").textContent = c.languages.join(", ");
 
     const speedNote = stats.speed !== c.speed.value ? `base ${c.speed.value} + buffs` : "base 30";
+    const hpSub = stats.maxHP !== c.hp.total ? `${c.hp.hitDice}, base max ${c.hp.total}` : c.hp.hitDice;
     const vitals = [
-      { label: "Hit Points", value: `${session.currentHP} / ${c.hp.total}`, sub: c.hp.hitDice },
+      { label: "Hit Points", value: `${session.currentHP} / ${stats.maxHP}`, sub: hpSub },
       { label: "Armor Class", value: stats.ac.total, sub: `touch ${stats.ac.touch} / flat ${stats.ac.flatFooted}` },
       { label: "Speed", value: `${stats.speed} ft.`, sub: speedNote },
       { label: "Initiative", value: modStr(c.initiative), sub: "" },
@@ -486,6 +503,17 @@
   /* ================================================================
    * SKILLS
    * ================================================================ */
+  // Recomputes each skill's ability modifier (and total) against the
+  // currently active buffs \u2014 ranks and misc bonuses never change mid-session.
+  function getEffectiveSkills(stats) {
+    return CHARACTER.skills.map((s) => {
+      const eff = stats.abilities[s.ability.toUpperCase()];
+      const abilityMod = eff ? eff.mod : s.abilityMod;
+      const total = s.ranks + abilityMod + s.misc;
+      return Object.assign({}, s, { abilityMod, total, buffed: !!(eff && eff.bonus) });
+    });
+  }
+
   function skillTable(skills) {
     const table = el("table", {}, [
       el("thead", {}, [el("tr", {}, [
@@ -496,8 +524,8 @@
     ]);
     const tbody = el("tbody");
     skills.forEach((s) => {
-      tbody.appendChild(el("tr", {}, [
-        el("td", {}, [s.name]),
+      tbody.appendChild(el("tr", { class: s.buffed ? "is-buffed" : "" }, [
+        el("td", {}, [s.name, s.buffed ? el("small", { class: "buffed-tag" }, [" (buffed)"]) : null]),
         el("td", {}, [s.ability]),
         el("td", { class: "num" }, [modStr(s.total)]),
         el("td", { class: "num" }, [String(s.ranks)]),
@@ -510,7 +538,8 @@
   }
 
   function renderSkills() {
-    const all = CHARACTER.skills.slice().sort((a, b) => b.total - a.total);
+    const stats = getEffectiveStats();
+    const all = getEffectiveSkills(stats).sort((a, b) => b.total - a.total);
     const trained = all.filter((s) => s.ranks > 0);
     $("#skillsTrained").innerHTML = "";
     $("#skillsTrained").appendChild(skillTable(trained));
@@ -652,6 +681,7 @@
 
   function spellTableEl(levelKey, spells, opts) {
     const isAlt = !!opts.alt;
+    const wisDelta = opts.wisDelta || 0;
     const table = el("table", { class: "spell-table" + (isAlt ? " is-alt" : "") }, [
       el("thead", {}, [el("tr", {}, [
         el("th", {}, ["Spell"]), el("th", {}, ["Qty"]), el("th", {}, ["DC"]),
@@ -667,10 +697,17 @@
         onclick: () => toggleSpellPrep(levelKey, s.name, isAlt),
       }, [isAlt ? "+ prepare" : "\u2212 unprepare"]);
 
+      // Every spell's printed DC already bakes in her base Wisdom mod (and
+      // any fixed bonus like Spell Focus), so a Wisdom buff just shifts it
+      // by the same delta \u2014 no per-spell school/ability data needed.
+      const dc = s.dc + wisDelta;
       tbody.appendChild(el("tr", {}, [
         el("td", {}, [s.name, btn]),
         el("td", { class: "num" + (s.qty > 1 ? " qty-multi" : "") }, [isAlt ? "\u2014" : String(s.qty)]),
-        el("td", { class: "num" }, [String(s.dc)]),
+        el("td", { class: "num" + (wisDelta ? " is-buffed" : "") }, [
+          String(dc),
+          wisDelta ? el("small", { class: "dc-delta" }, [` (${modStr(wisDelta)})`]) : null,
+        ]),
         el("td", {}, [s.save]),
         el("td", {}, [s.cast]),
         el("td", {}, [s.duration]),
@@ -742,6 +779,8 @@
   function renderSpellLevels() {
     const container = $("#spellLevels");
     container.innerHTML = "";
+    const stats = getEffectiveStats();
+    const wisDelta = stats.abilities.WIS.mod - CHARACTER.abilities.WIS.mod;
 
     Object.keys(SPELL_DATA).forEach((levelKey) => {
       const lvl = getEffectiveLevel(levelKey);
@@ -755,14 +794,14 @@
         ]),
       ]));
 
-      block.appendChild(spellTableEl(levelKey, lvl.prepared, { alt: false }));
+      block.appendChild(spellTableEl(levelKey, lvl.prepared, { alt: false, wisDelta }));
 
       if (lvl.alternatives.length) {
         const details = el("details", { class: "alt-toggle-wrap" });
         details.appendChild(el("summary", { class: "alt-toggle" }, [
           `Other options you know but haven't prepared (${lvl.alternatives.length})`,
         ]));
-        details.appendChild(el("div", { class: "alt-table-wrap" }, [spellTableEl(levelKey, lvl.alternatives, { alt: true })]));
+        details.appendChild(el("div", { class: "alt-table-wrap" }, [spellTableEl(levelKey, lvl.alternatives, { alt: true, wisDelta })]));
         block.appendChild(details);
       }
 
