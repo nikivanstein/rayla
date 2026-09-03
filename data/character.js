@@ -63,14 +63,38 @@ const CHARACTER = {
   armorWorn: { name: "Hide", type: "Medium", armorBonus: 3, maxDex: 4, checkPenalty: -3, spellFailure: 20, speed: 20, weight: 25 },
 
   feats: [
-    "Armor Proficiency (light)",
-    "Armor Proficiency (medium)",
-    "Shield Proficiency",
-    "Augment Summoning",
-    "Spell Focus: Conjuration",
-    "Natural Spell",
-    "Assume Supernatural Ability",
-    "Dragon Wild Shape",
+    {
+      name: "Armor Proficiency (light)",
+      description: "Proficient with light armor: its armor check penalty applies only to Balance, Climb, Escape Artist, Hide, Jump, Move Silently, and Tumble checks, instead of to attack rolls and all Strength- and Dexterity-based checks. (PHB)",
+    },
+    {
+      name: "Armor Proficiency (medium)",
+      description: "As Armor Proficiency (light), but for medium armor — without it, a medium armor's check penalty applies to attack rolls and all movement-based skill checks as well. (PHB)",
+    },
+    {
+      name: "Shield Proficiency",
+      description: "Proficient with shields (but not tower shields): a proficient shield's armor check penalty applies only to Balance, Climb, Escape Artist, Hide, Jump, Move Silently, and Tumble checks. (PHB)",
+    },
+    {
+      name: "Augment Summoning",
+      description: "Prerequisite: Spell Focus (Conjuration). Each creature you conjure with a summon spell gains a +4 enhancement bonus to Strength and a +4 enhancement bonus to Constitution for the duration of the spell that summoned it. (PHB)",
+    },
+    {
+      name: "Spell Focus: Conjuration",
+      description: "Adds +1 to the Difficulty Class for all saving throws against your conjuration spells. (PHB)",
+    },
+    {
+      name: "Natural Spell",
+      description: "Prerequisites: Wis 13, wild shape class feature. Lets you complete the verbal and somatic components of a spell while in wild shape, substituting noises and gestures, and use material components or foci even if they're melded into your new form. Doesn't grant the ability to speak or to use magic items your form couldn't normally use. (Complete Divine)",
+    },
+    {
+      name: "Assume Supernatural Ability",
+      description: "Prerequisite: Wis 13, ability to assume a new form magically (such as wild shape). Lets you use one supernatural ability of the creature whose form you've assumed; the save DC is based on your own ability scores and Hit Dice rather than the base creature's. (Savage Species)",
+    },
+    {
+      name: "Dragon Wild Shape",
+      description: "Prerequisites: Wis 19, Knowledge (nature) 15 ranks, wild shape class feature. Lets you use wild shape to become a Small or Medium true dragon, gaining its Extraordinary and Supernatural abilities — but not its spells or spell-like abilities. (Draconomicon)",
+    },
   ],
 
   specialQualities: [
@@ -153,6 +177,8 @@ const CHARACTER = {
     { name: "Bracers of Armor +1", qty: 1, cost: "1000 gp", weight: "1 lb.", magic: "Grants a +1 armor bonus to AC. (DMG 250)" },
     { name: "Robe of Stars", qty: 1, cost: "58000 gp", weight: "1 lb.", magic: "Lets the wearer travel physically to the Astral Plane, grants a +1 luck bonus on all saving throws, and up to 6 of its embroidered stars can be used as +5 shuriken (one use each). (DMG 265)" },
     { name: "Amulet of the Planes", qty: 1, cost: "120000 gp", weight: "0 lb.", magic: "Allows the wearer to plane shift, as the spell. (DMG 247)" },
+    { name: "Emeril Horizon Glass", qty: 1, cost: "\u2014", weight: "\u2014", magic: "While holding this stone, your touch spells become short-range spells instead (30 ft.). Usable 3/day." },
+    { name: "Emeril of the Stretched Horizon", qty: 1, cost: "\u2014", weight: "\u2014", magic: "While holding this stone, spells you cast gain increased range, as the Enlarge Spell metamagic feat. Usable 3/day." },
     { name: "Quarterstaff", qty: 1, cost: "\u2014", weight: "4 lbs." },
     { name: "Hide armor", qty: 1, cost: "15 gp", weight: "25 lbs." },
     { name: "Alchemist's tools", qty: 1, cost: "5 gp", weight: "5 lbs." },
