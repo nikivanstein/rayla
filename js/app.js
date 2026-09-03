@@ -191,28 +191,6 @@
 
     const printBtn = $("#printBtn");
     if (printBtn) printBtn.addEventListener("click", () => window.print());
-
-    setupPrintExpand();
-  }
-
-  /* ---------------------------------------------------------------- *
-   * Modern Chromium renders a closed <details> element's content
-   * through an internal content-visibility mechanism that a plain CSS
-   * "display: block !important" override can't defeat. So instead of
-   * fighting that in CSS, actually open the feats/class-features
-   * <details> right before printing (and put them back after), which
-   * uses the browser's real mechanism for revealing them.
-   * ---------------------------------------------------------------- */
-  function setupPrintExpand() {
-    let openedByUs = [];
-    window.addEventListener("beforeprint", () => {
-      openedByUs = Array.from(document.querySelectorAll(".feat-item:not([open])"));
-      openedByUs.forEach((d) => d.setAttribute("open", ""));
-    });
-    window.addEventListener("afterprint", () => {
-      openedByUs.forEach((d) => d.removeAttribute("open"));
-      openedByUs = [];
-    });
   }
 
   /* ================================================================
