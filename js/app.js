@@ -570,7 +570,7 @@
   function renderFeats() {
     fillFeatList("#featsList", CHARACTER.feats);
     fillTagList("#qualitiesList", CHARACTER.specialQualities);
-    fillTagList("#featuresList", CHARACTER.classFeatures);
+    fillFeatList("#featuresList", CHARACTER.classFeatures);
   }
 
   /* ================================================================
