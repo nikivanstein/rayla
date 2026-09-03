@@ -212,7 +212,7 @@ const CHARACTER = {
   equipment: [
     { name: "Bracers of Armor +1", qty: 1, cost: "1000 gp", weight: "1 lb.", magic: "Grants a +1 armor bonus to AC. (DMG 250)" },
     { name: "Robe of Stars", qty: 1, cost: "58000 gp", weight: "1 lb.", magic: "Lets the wearer travel physically to the Astral Plane, grants a +1 luck bonus on all saving throws, and up to 6 of its embroidered stars can be used as +5 shuriken (one use each). (DMG 265)" },
-    { name: "Amulet of the Planes", qty: 1, cost: "120000 gp", weight: "0 lb.", magic: "Allows the wearer to plane shift, as the spell. (DMG 247)" },
+    { name: "Amulet of the Monkey God", qty: 1, cost: "120000 gp", weight: "0 lb.", magic: "Allows the wearer to plane shift to the Monkey god's domain, (similar as Astral plane). (DMG 247)" },
     { name: "Emeril Horizon Glass", qty: 1, cost: "\u2014", weight: "\u2014", magic: "While holding this stone, your touch spells become short-range spells instead (30 ft.). Usable 3/day." },
     { name: "Emeril of the Stretched Horizon", qty: 1, cost: "\u2014", weight: "\u2014", magic: "While holding this stone, spells you cast gain increased range, as the Enlarge Spell metamagic feat. Usable 3/day." },
     { name: "Quarterstaff", qty: 1, cost: "\u2014", weight: "4 lbs." },
@@ -233,7 +233,7 @@ const CHARACTER = {
 
   animalCompanion: {
     name: "Rayla's Bait",
-    note: "Celestial-templated big cat \u2014 Smite Evil, energy resistances, and spell resistance all point to the Celestial template.",
+    note: "Celestial-Lion \u2014 Smite Evil, energy resistances, and spell resistance all point to the Celestial template.",
     abilities: { STR: 23, DEX: 19, CON: 15, INT: 3, WIS: 12, CHA: 6 },
     saves: { fort: 8, reflex: 10, will: 4 },
     hp: 58,
