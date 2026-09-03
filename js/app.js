@@ -46,6 +46,32 @@
 
   const OVERRIDES_KEY = "rayla:spellOverrides:v1";
   const SLOTS_KEY = "rayla:slotsUsed:v1";
+  const THEME_KEY = "rayla:theme:v1";
+
+  /* ================================================================
+   * THEME TOGGLE (e-ink mode)
+   * ================================================================ */
+  function setupTheme() {
+    const btn = $("#themeToggle");
+    if (!btn) return;
+    const label = $(".theme-toggle__label", btn);
+    const icon = $(".theme-toggle__icon", btn);
+
+    function apply(isEink) {
+      document.documentElement.setAttribute("data-theme", isEink ? "eink" : "default");
+      btn.setAttribute("aria-pressed", String(isEink));
+      label.textContent = isEink ? "E-ink mode: on" : "E-ink mode";
+      icon.textContent = isEink ? "☀️" : "📖";
+    }
+
+    apply(document.documentElement.getAttribute("data-theme") === "eink");
+
+    btn.addEventListener("click", () => {
+      const next = document.documentElement.getAttribute("data-theme") !== "eink";
+      apply(next);
+      try { localStorage.setItem(THEME_KEY, next ? "eink" : "default"); } catch (e) { /* ignore */ }
+    });
+  }
 
   /* ================================================================
    * HERO / OVERVIEW
@@ -528,6 +554,7 @@
    * INIT
    * ================================================================ */
   function init() {
+    setupTheme();
     renderOverview();
     renderAbilities();
     renderCombat();

@@ -35,6 +35,49 @@
   --nav-w: 232px;
 }
 
+/* ---------------------------------------------------------------------
+   E-ink theme: pure black-on-white, no hue-coded info, no motion.
+   Toggled by adding data-theme="eink" to <html> (see js/app.js).
+   --------------------------------------------------------------------- */
+[data-theme="eink"] {
+  --bg: #ffffff;
+  --bg-soft: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #eeeeee;
+  --border: #000000;
+  --border-soft: #888888;
+  --text: #000000;
+  --text-muted: #333333;
+  --text-faint: #555555;
+  --accent: #000000;
+  --accent-strong: #000000;
+  --gold: #000000;
+
+  --lvl-0: #000000;
+  --lvl-1: #000000;
+  --lvl-2: #000000;
+  --lvl-3: #000000;
+  --lvl-4: #000000;
+  --lvl-5: #000000;
+  --lvl-6: #000000;
+  --lvl-7: #000000;
+
+  --font-display: Georgia, 'Iowan Old Style', serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-mono: 'Courier New', ui-monospace, monospace;
+}
+[data-theme="eink"] * {
+  transition: none !important;
+  animation: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+[data-theme="eink"] body { font-size: 17px; -webkit-font-smoothing: auto; }
+[data-theme="eink"] .skip-link { color: #ffffff; }
+[data-theme="eink"] .slot-box.used::after { color: #ffffff; }
+[data-theme="eink"] table.spell-table th { color: #ffffff; }
+[data-theme="eink"] .ws-card { --ws-c: #000000 !important; }
+
 * { box-sizing: border-box; }
 
 html { scroll-behavior: smooth; }
@@ -43,6 +86,7 @@ html { scroll-behavior: smooth; }
   html { scroll-behavior: auto; }
   * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
+[data-theme="eink"] html { scroll-behavior: auto; }
 
 body {
   margin: 0;
@@ -137,6 +181,35 @@ code {
   background: var(--surface-2);
   color: var(--accent-strong);
   border-left-color: var(--accent);
+}
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  margin-top: 12px;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.theme-toggle:hover { color: var(--text); border-color: var(--text-muted); }
+.theme-toggle__icon { font-size: 16px; line-height: 1; }
+.theme-toggle[aria-pressed="true"] {
+  background: var(--surface-2);
+  color: var(--accent-strong);
+  border-color: var(--accent);
+}
+[data-theme="eink"] .theme-toggle[aria-pressed="true"] {
+  background: #000000;
+  color: #ffffff;
 }
 
 .side-nav__foot {
