@@ -447,6 +447,42 @@ details.reveal[open] > summary::before { transform: rotate(90deg); }
   color: var(--text);
 }
 
+.feat-item-wrap { list-style: none; }
+.feat-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 0;
+  overflow: hidden;
+}
+.feat-item__summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 8px 12px;
+  font-size: 13.5px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.feat-item__summary::-webkit-details-marker { display: none; }
+.feat-item__summary::before {
+  content: '\25B8';
+  display: inline-block;
+  transition: transform 0.15s;
+  font-size: 10px;
+  color: var(--accent-strong);
+  flex-shrink: 0;
+}
+.feat-item[open] > .feat-item__summary::before { transform: rotate(90deg); }
+.feat-item__desc {
+  margin: 0;
+  padding: 0 12px 10px 26px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
 /* ---------------------------------------------------------------------
    Equipment
    --------------------------------------------------------------------- */

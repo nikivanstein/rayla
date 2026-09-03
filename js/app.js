@@ -180,8 +180,19 @@
     list.innerHTML = "";
     items.forEach((item) => list.appendChild(el("li", {}, [item])));
   }
+  function fillFeatList(id, feats) {
+    const list = $(id);
+    list.innerHTML = "";
+    feats.forEach((feat) => {
+      const details = el("details", { class: "feat-item" }, [
+        el("summary", { class: "feat-item__summary" }, [feat.name]),
+        el("p", { class: "feat-item__desc" }, [feat.description]),
+      ]);
+      list.appendChild(el("li", { class: "feat-item-wrap" }, [details]));
+    });
+  }
   function renderFeats() {
-    fillTagList("#featsList", CHARACTER.feats);
+    fillFeatList("#featsList", CHARACTER.feats);
     fillTagList("#qualitiesList", CHARACTER.specialQualities);
     fillTagList("#featuresList", CHARACTER.classFeatures);
   }
