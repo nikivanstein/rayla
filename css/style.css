@@ -989,6 +989,12 @@ details[open] > .ws-card__summary .ws-card__chevron { transform: rotate(90deg); 
     --accent: #000000 !important; --accent-strong: #000000 !important; --gold: #000000 !important;
     --lvl-0: #000000 !important; --lvl-1: #000000 !important; --lvl-2: #000000 !important; --lvl-3: #000000 !important;
     --lvl-4: #000000 !important; --lvl-5: #000000 !important; --lvl-6: #000000 !important; --lvl-7: #000000 !important;
+    /* Standard, always-installed fonts — a printout shouldn't depend on
+       Google Fonts having loaded, and plain system faces read better
+       at the small sizes a compact print layout needs anyway. */
+    --font-display: Georgia, 'Times New Roman', Times, serif !important;
+    --font-body: Arial, Helvetica, sans-serif !important;
+    --font-mono: 'Courier New', Courier, monospace !important;
   }
   * { box-shadow: none !important; text-shadow: none !important; transition: none !important; animation: none !important; }
   body { font-size: 10.5px; line-height: 1.35; }
@@ -1001,7 +1007,13 @@ details[open] > .ws-card__summary .ws-card__chevron { transform: rotate(90deg); 
     display: none !important;
   }
 
-  main { margin-left: 0; max-width: none; padding: 0; }
+  /* @page's margin is only honored when the browser's print-dialog
+     margin setting is "Default" — pick "None" (or a PDF pathway that
+     ignores page CSS) and the whole sheet prints edge-to-edge. Baking
+     real padding into the content itself guarantees left/right margin
+     on every page regardless, and top/bottom margin at least on the
+     first/last page. */
+  main { margin-left: 0; max-width: none; padding: 6mm 8mm; }
 
   /* Feats / class features are force-opened before printing (see
      setupPrintExpand in app.js — modern Chromium's content-visibility
@@ -1048,6 +1060,22 @@ details[open] > .ws-card__summary .ws-card__chevron { transform: rotate(90deg); 
   table.spell-table { min-width: 0 !important; width: 100%; table-layout: fixed; }
   table.spell-table th { color: #000000 !important; background: #eeeeee !important; }
   table.spell-table td.qty-multi { color: #000000 !important; }
+  /* table-layout: fixed splits columns evenly with no widths set, which
+     starved Effect — the column that actually needs the room — down to
+     ~1/8th of the row. Give it the lion's share instead. Single-word
+     headers (QTY, DURATION) can't line-wrap, so their columns need
+     enough absolute width to fit the word or it visibly overflows into
+     the next cell — verified against a real rendered PDF, not just
+     eyeballed percentages. */
+  table.spell-table th:nth-child(1), table.spell-table td:nth-child(1) { width: 13%; }
+  table.spell-table th:nth-child(2), table.spell-table td:nth-child(2) { width: 6%; }
+  table.spell-table th:nth-child(3), table.spell-table td:nth-child(3) { width: 5%; }
+  table.spell-table th:nth-child(4), table.spell-table td:nth-child(4) { width: 10%; }
+  table.spell-table th:nth-child(5), table.spell-table td:nth-child(5) { width: 9%; }
+  table.spell-table th:nth-child(6), table.spell-table td:nth-child(6) { width: 11%; }
+  table.spell-table th:nth-child(7), table.spell-table td:nth-child(7) { width: 9%; }
+  table.spell-table th:nth-child(8), table.spell-table td:nth-child(8) { width: 37%; }
+  table.spell-table th { letter-spacing: 0; overflow-wrap: break-word; }
   /* Flex-in-table-cell sizing for a native <input> is unreliable across
      print engines — stack it instead so it can't overflow its cell. */
   .spellstaff-field { display: block; }
