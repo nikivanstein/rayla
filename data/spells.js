@@ -101,7 +101,7 @@ const SPELL_DATA = {
       { name: "Arc of Lightning", qty: 2, dc: 19, save: "Reflex Half", cast: "1 Action", duration: "Instantaneous", range: "Close (25+5/2 lvl)", effect: "A line of lightning between you and the target deals 1d6/lvl (max 15d6) electricity damage to both the target and anything between you. (SpC15)" },
       { name: "Flame Strike", qty: 1, dc: 18, save: "Reflex Half", cast: "1 Action", duration: "Instantaneous", range: "Medium (100+10/lvl)", effect: "A column of divine fire roars down, dealing 1d6/caster level (max 15d6) fire damage in the area. (PH231)" },
       { name: "Luminous Armor, Greater", qty: 1, dc: 18, save: "None", cast: "1 Action", duration: "1 hour/lvl (D)", range: "Touch", effect: "Wreathes the target in light: +8 armor bonus, dispels magical darkness nearby, -4 penalty on foes' melee attacks against it. (BoED)" },
-      { name: "Moon Bolt", qty: 1, dc: 18, save: "Fort. Half (living) / Will Neg. (undead)", cast: "1 Action", duration: "Instantaneous", range: "Long (400+40/lvl)", effect: "A bolt of pale light strikes unerringly, damaging any living or undead creature in range regardless of cover. (SpC143)" },
+      { name: "Moon Bolt", qty: 1, dc: 18, save: "Fort. Half (living) / Will Neg. (undead)", cast: "1 Action", duration: "Instantaneous", range: "Long (400+40/lvl)", effect: "A bolt of pale light strikes unerringly, damaging any living or undead creature in range regardless of cover. A living creature struck by a moon bolt takes 1d4 points of Strength damage per three caster levels (maximum 5d4). If the subject makes a successful Fortitude saving throw, the Strength damage is halved.\nAn undead creature struck by a moon bolt must make a Will save or fall helpless for 1d4 rounds, after which time it is no longer helpless and can stand upright, but it takes a -2 penalty on attack rolls and Will saving throws for the next minute. (SpC143)" },
       { name: "Scrying", qty: 1, dc: 18, save: "Will Negates", cast: "1 Hour", duration: "1 min/lvl", range: "Special", effect: "Creates an invisible sensor letting you see/hear a known subject at a distance, given a likeness or personal item. (PH274)" },
     ],
     alternatives: [
@@ -117,7 +117,7 @@ const SPELL_DATA = {
     perDay: 3,
     prepared: [
       { name: "Baleful Polymorph", qty: 1, dc: 19, save: "Fort. Neg., Will Partial; see text", cast: "1 Action", duration: "Permanent", range: "Close (25+5/2 lvl)", effect: "Permanently turns the target into a Small or smaller, 1-HD-or-less animal (e.g. a toad); an unwilling target that also fails its Will save thinks like the animal too. (PH202)" },
-      { name: "Blizzard", qty: 1, dc: 19, save: "Fortitude Partial", cast: "1 Round", duration: "1 round/lvl", range: "Long (400+40/lvl)", effect: "Summons a driving blizzard over a huge area: temperature plummets, visibility drops to zero, cold damage each round. (Frstbn89)" },
+      { name: "Blizzard", qty: 1, dc: 19, save: "Fortitude Partial", cast: "1 Round", duration: "1 round/lvl", range: "Long (400+40/lvl)", effect: "Summons a driving blizzard over a huge area: temperature plummets, visibility drops to zero, 1d6 cold damage each round, one foot of snow each round. (Frstbn89)" },
       { name: "Control Winds", qty: 1, dc: 19, save: "Fortitude Negates", cast: "1 Action", duration: "10 min/lvl", range: "40 ft./lvl", effect: "Lets you strengthen, weaken, or redirect the wind throughout a large area for the duration. (PH214)" },
     ],
     alternatives: [
@@ -133,12 +133,12 @@ const SPELL_DATA = {
     label: "Level 6",
     perDay: 2,
     prepared: [
-      { name: "Cometfall", qty: 2, dc: 21, save: "Reflex Half", cast: "1 Action", duration: "Instantaneous", range: "Medium (100+10/lvl)", effect: "Conjures a small comet that crashes into the target point, damaging everything in the area. (SpC50)" },
+      { name: "Dispel Magic, Greater", qty: 1, dc: 20, save: "None", cast: "1 Action", duration: "Instantaneous", range: "Medium (100+10/lvl)", effect: "As dispel magic, but the caster level check can reach +20 and it can end more kinds of effects. (PH223)" },
       { name: "Spellstaff", qty: 1, dc: 20, save: "Will Neg. (Object)", cast: "10 Minutes", duration: "Permanent until discharged (D)", range: "Touch", effect: "Permanently stores one prepared spell (up to 6th level) in your quarterstaff, triggerable later without using a slot. (PH282)" },
     ],
     alternatives: [
+      { name: "Cometfall", dc: 21, save: "Reflex Half", cast: "1 Action", duration: "Instantaneous", range: "Medium (100+10/lvl)", effect: "Conjures a small comet that crashes into the target point, damaging everything in the area. Dealing 2d6 points of damage per 10 feet fallen (maximum 20d6). Creatures who failed their Reflex save are subject to a trip attempt. The comet has a +11 bonus (+7 for effective Strength of 25 and +4 for being Large) on the trip check.(SpC50)" },
       { name: "Antilife Shell", dc: 20, save: "None", cast: "1 Round", duration: "10 min/lvl (D)", range: "10 ft.", effect: "A mobile 10-ft. hemisphere centered on you blocks nearly all living creatures from entering; defensive use only. (PH199)" },
-      { name: "Dispel Magic, Greater", dc: 20, save: "None", cast: "1 Action", duration: "Instantaneous", range: "Medium (100+10/lvl)", effect: "As dispel magic, but the caster level check can reach +20 and it can end more kinds of effects. (PH223)" },
       { name: "Find the Path", dc: 20, save: "None or Will Neg. (Harmless)", cast: "3 Rounds", duration: "10 min/lvl", range: "Personal or touch", effect: "Reveals the shortest, most direct route to a destination you name on your plane, bypassing traps and even a maze spell. (PH230)" },
     ],
   },
@@ -147,10 +147,10 @@ const SPELL_DATA = {
     label: "Level 7",
     perDay: 1,
     prepared: [
-      { name: "True Seeing", qty: 1, dc: 21, save: "Will Neg. (Harmless)", cast: "1 Action", duration: "1 min/lvl", range: "Touch", effect: "Lets you see all things as they truly are \u2014 through illusions, transmutations, darkness, and invisibility \u2014 out to 120 ft. (PH296)" },
-    ],
+      { name: "Heal", qty: 1, dc: 22, save: "Will Neg. (Harmless)", cast: "1 Action", duration: "Instantaneous", range: "Touch", effect: "Instantly cures 10 hp/caster level (max 150) and ends blindness, disease, exhaustion, poison, and most other debilitating conditions with one touch. (PH239)" },
+      ],
     alternatives: [
-      { name: "Heal", dc: 22, save: "Will Neg. (Harmless)", cast: "1 Action", duration: "Instantaneous", range: "Touch", effect: "Instantly cures 10 hp/caster level (max 150) and ends blindness, disease, exhaustion, poison, and most other debilitating conditions with one touch. (PH239)" },
+      { name: "True Seeing", dc: 21, save: "Will Neg. (Harmless)", cast: "1 Action", duration: "1 min/lvl", range: "Touch", effect: "Lets you see all things as they truly are \u2014 through illusions, transmutations, darkness, and invisibility \u2014 out to 120 ft. (PH296)" },
       { name: "Fire Storm", dc: 21, save: "Reflex Half", cast: "1 Round", duration: "Instantaneous", range: "Medium (100+10/lvl)", effect: "Sheets of flame tear through a large area for 1d6/caster level (max 20d6) fire damage; you may exclude natural vegetation and chosen plant creatures. (PH231)" },
     ],
   },
