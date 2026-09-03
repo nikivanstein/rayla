@@ -47,6 +47,111 @@
   const OVERRIDES_KEY = "rayla:spellOverrides:v1";
   const SLOTS_KEY = "rayla:slotsUsed:v1";
   const THEME_KEY = "rayla:theme:v1";
+  const SESSION_KEY = "rayla:session:v1";
+
+  const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+
+  /* ================================================================
+   * SESSION STATE (current HP, companion HP, wild shape uses, money,
+   * active buffs, conditions, notes) — all local-storage only, never
+   * written back to /data.
+   * ================================================================ */
+  function readSession() {
+    const s = readStore(SESSION_KEY, {});
+    return {
+      currentHP: s.currentHP != null ? s.currentHP : CHARACTER.hp.total,
+      companionHP: s.companionHP != null ? s.companionHP : CHARACTER.animalCompanion.hp,
+      wildShapeUsed: Array.isArray(s.wildShapeUsed) && s.wildShapeUsed.length === 4 ? s.wildShapeUsed : [false, false, false, false],
+      money: s.money || Object.assign({}, CHARACTER.money),
+      activeBuffs: Array.isArray(s.activeBuffs) ? s.activeBuffs : [],
+      conditions: s.conditions || "",
+      notes: s.notes || "",
+    };
+  }
+  function writeSession(patch) {
+    const current = readStore(SESSION_KEY, {});
+    writeStore(SESSION_KEY, Object.assign({}, current, patch));
+  }
+
+  /* ---------------------------------------------------------------- *
+   * Active-buff bonus math (D&D 3.5 stacking: same bonus type to the
+   * same thing doesn't stack — only the higher counts; different
+   * types do stack).
+   * ---------------------------------------------------------------- */
+  function getBuffTotals() {
+    const activeIds = readSession().activeBuffs;
+    const groups = {};
+    (typeof BUFF_LIBRARY !== "undefined" ? BUFF_LIBRARY : []).forEach((b) => {
+      if (activeIds.indexOf(b.id) === -1) return;
+      b.effects.forEach((e) => {
+        let key = null;
+        if (e.target === "ability") key = `ability:${e.ability}:${e.bonusType}`;
+        else if (e.target === "ac") key = `ac:${e.component}:${e.bonusType}`;
+        else if (e.target === "save") key = `save:${e.save}:${e.bonusType}`;
+        else if (e.target === "speed") key = `speed:${e.bonusType}`;
+        if (!key) return;
+        groups[key] = Math.max(groups[key] || 0, e.amount);
+      });
+    });
+    const totals = { abilities: {}, ac: { natural: 0, deflection: 0, armor: 0 }, saves: { fort: 0, reflex: 0, will: 0 }, speed: 0 };
+    Object.keys(groups).forEach((key) => {
+      const parts = key.split(":");
+      const kind = parts[0], a = parts[1];
+      const amt = groups[key];
+      if (kind === "ability") totals.abilities[a] = (totals.abilities[a] || 0) + amt;
+      else if (kind === "ac") totals.ac[a] = (totals.ac[a] || 0) + amt;
+      else if (kind === "save") {
+        if (a === "all") { totals.saves.fort += amt; totals.saves.reflex += amt; totals.saves.will += amt; }
+        else totals.saves[a] = (totals.saves[a] || 0) + amt;
+      } else if (kind === "speed") totals.speed += amt;
+    });
+    return totals;
+  }
+
+  function getEffectiveAbilities(buffTotals) {
+    const eff = {};
+    Object.entries(CHARACTER.abilities).forEach(([name, a]) => {
+      const bonus = buffTotals.abilities[name] || 0;
+      const score = a.score + bonus;
+      eff[name] = { score, mod: Math.floor((score - 10) / 2), bonus };
+    });
+    return eff;
+  }
+
+  function getEffectiveAC(buffTotals) {
+    const c = CHARACTER;
+    // "Armor" type bonuses don't stack with worn armor — only the higher counts.
+    const armor = Math.max(c.ac.armor, buffTotals.ac.armor);
+    const natural = c.ac.natural + buffTotals.ac.natural;
+    const deflection = buffTotals.ac.deflection;
+    const total = 10 + armor + c.ac.shield + c.ac.dex + c.ac.size + natural + deflection + c.ac.misc;
+    const touch = 10 + c.ac.dex + c.ac.size + deflection + c.ac.misc;
+    const flatFooted = total - c.ac.dex;
+    return { total, touch, flatFooted, armor, natural, deflection };
+  }
+
+  function getEffectiveSaves(buffTotals, eff) {
+    const c = CHARACTER;
+    function calc(save, abilityKey) {
+      const base = c.saves[save].base;
+      const abilityMod = eff[abilityKey].mod;
+      const resist = buffTotals.saves[save] || 0;
+      return { base, abilityMod, resist, total: base + abilityMod + resist };
+    }
+    return { fort: calc("fort", "CON"), reflex: calc("reflex", "DEX"), will: calc("will", "WIS") };
+  }
+
+  function getEffectiveStats() {
+    const buffTotals = getBuffTotals();
+    const abilities = getEffectiveAbilities(buffTotals);
+    return {
+      buffTotals,
+      abilities,
+      ac: getEffectiveAC(buffTotals),
+      saves: getEffectiveSaves(buffTotals, abilities),
+      speed: CHARACTER.speed.value + buffTotals.speed,
+    };
+  }
 
   /* ================================================================
    * THEME TOGGLE (e-ink mode)
@@ -74,10 +179,217 @@
   }
 
   /* ================================================================
+   * SESSION TRACKER
+   * ================================================================ */
+  function refreshAfterSessionChange() {
+    renderOverview();
+    renderAbilities();
+    renderCombat();
+  }
+
+  function hpTrackerPanel(opts) {
+    // opts: { title, max, sub, current, onChange }
+    const panel = el("div", {}, [el("h3", {}, [opts.title])]);
+    const display = el("div", { class: "hp-tracker__current" }, [String(opts.current)]);
+    const input = el("input", {
+      type: "number", class: "hp-tracker__input", value: String(opts.current),
+      "aria-label": `Current ${opts.title}`,
+      onchange: (e) => {
+        const v = clamp(parseInt(e.target.value, 10) || 0, -opts.max, opts.max);
+        e.target.value = String(v);
+        display.textContent = String(v);
+        opts.onChange(v);
+      },
+    });
+    const step = (delta) => () => {
+      const v = clamp((parseInt(input.value, 10) || 0) + delta, -opts.max, opts.max);
+      input.value = String(v);
+      display.textContent = String(v);
+      opts.onChange(v);
+    };
+    panel.appendChild(el("div", { class: "hp-tracker" }, [
+      el("div", { class: "hp-tracker__btns" }, [
+        el("button", { type: "button", class: "hp-btn", onclick: step(-5) }, ["−5"]),
+        el("button", { type: "button", class: "hp-btn", onclick: step(-1) }, ["−1"]),
+      ]),
+      input,
+      el("span", { class: "hp-tracker__max" }, [`/ ${opts.max} max`]),
+      el("div", { class: "hp-tracker__btns" }, [
+        el("button", { type: "button", class: "hp-btn", onclick: step(1) }, ["+1"]),
+        el("button", { type: "button", class: "hp-btn", onclick: step(5) }, ["+5"]),
+      ]),
+    ]));
+    if (opts.sub) panel.appendChild(el("p", { class: "session-panel__sub" }, [opts.sub]));
+    panel.appendChild(el("button", {
+      type: "button", class: "session-reset",
+      onclick: () => { input.value = String(opts.max); display.textContent = String(opts.max); opts.onChange(opts.max); },
+    }, ["Full heal / reset to max"]));
+    return panel;
+  }
+
+  function renderHpPanel() {
+    const session = readSession();
+    const panel = $("#hpPanel");
+    panel.innerHTML = "";
+    panel.appendChild(hpTrackerPanel({
+      title: "Rayla's Hit Points",
+      max: CHARACTER.hp.total,
+      current: session.currentHP,
+      sub: CHARACTER.hp.hitDice,
+      onChange: (v) => { writeSession({ currentHP: v }); renderOverview(); },
+    }));
+  }
+
+  function renderCompanionHpPanel() {
+    const session = readSession();
+    const panel = $("#companionHpPanel");
+    panel.innerHTML = "";
+    panel.appendChild(hpTrackerPanel({
+      title: `${CHARACTER.animalCompanion.name}'s Hit Points`,
+      max: CHARACTER.animalCompanion.hp,
+      current: session.companionHP,
+      onChange: (v) => { writeSession({ companionHP: v }); },
+    }));
+  }
+
+  function renderWildshapeUsesPanel() {
+    const session = readSession();
+    const panel = $("#wildshapeUsesPanel");
+    panel.innerHTML = "";
+    panel.appendChild(el("h3", {}, ["Wild Shape Uses Today"]));
+    const usedCount = session.wildShapeUsed.filter(Boolean).length;
+    const boxesWrap = el("div", { class: "slot-boxes" }, [
+      el("span", { class: "slot-count" }, [`${usedCount}/4`]),
+    ]);
+    session.wildShapeUsed.forEach((used, i) => {
+      boxesWrap.appendChild(el("button", {
+        type: "button",
+        class: "slot-box" + (used ? " used" : ""),
+        "aria-label": `Wild shape use ${i + 1} ${used ? "used" : "unused"}`,
+        onclick: () => {
+          const s = readSession();
+          const arr = s.wildShapeUsed.slice();
+          arr[i] = !arr[i];
+          writeSession({ wildShapeUsed: arr });
+          renderWildshapeUsesPanel();
+        },
+      }));
+    });
+    boxesWrap.appendChild(el("button", {
+      type: "button", class: "slot-reset",
+      onclick: () => { writeSession({ wildShapeUsed: [false, false, false, false] }); renderWildshapeUsesPanel(); },
+    }, ["reset"]));
+    panel.appendChild(boxesWrap);
+    panel.appendChild(el("p", { class: "session-panel__sub" }, ["4/day — Tiny to Large, and Plant."]));
+  }
+
+  function renderMoneyTrackerPanel() {
+    const session = readSession();
+    const panel = $("#moneyTrackerPanel");
+    panel.innerHTML = "";
+    panel.appendChild(el("h3", {}, ["Money"]));
+    const grid = el("div", { class: "money-grid" });
+    ["pp", "gp", "sp", "cp"].forEach((coin) => {
+      const input = el("input", {
+        type: "number", class: "money-input", value: String(session.money[coin]),
+        "aria-label": coin.toUpperCase(),
+        onchange: (e) => {
+          const v = Math.max(0, parseInt(e.target.value, 10) || 0);
+          e.target.value = String(v);
+          const s = readSession();
+          writeSession({ money: Object.assign({}, s.money, { [coin]: v }) });
+        },
+      });
+      grid.appendChild(el("label", { class: "money-field" }, [
+        el("span", {}, [coin.toUpperCase()]),
+        input,
+      ]));
+    });
+    panel.appendChild(grid);
+    panel.appendChild(el("button", {
+      type: "button", class: "session-reset",
+      onclick: () => { writeSession({ money: Object.assign({}, CHARACTER.money) }); renderMoneyTrackerPanel(); },
+    }, ["Reset to sheet"]));
+  }
+
+  function renderBuffsPanel() {
+    const session = readSession();
+    const panel = $("#buffsPanel");
+    panel.innerHTML = "";
+    panel.appendChild(el("h3", {}, ["Active Buffs"]));
+    panel.appendChild(el("p", { class: "section__note" }, ["Toggle a spell on while it's in effect — Ability Scores, AC, Saves, and Speed above update live. Same-type bonuses don't stack (3.5 rules); different types do."]));
+    const list = el("div", { class: "buff-list" });
+    (typeof BUFF_LIBRARY !== "undefined" ? BUFF_LIBRARY : []).forEach((b) => {
+      const active = session.activeBuffs.indexOf(b.id) !== -1;
+      const id = `buff-${b.id}`;
+      const checkbox = el("input", {
+        type: "checkbox", id, class: "buff-check",
+        onchange: (e) => {
+          const s = readSession();
+          const set = s.activeBuffs.slice();
+          const idx = set.indexOf(b.id);
+          if (e.target.checked && idx === -1) set.push(b.id);
+          else if (!e.target.checked && idx !== -1) set.splice(idx, 1);
+          writeSession({ activeBuffs: set });
+          refreshAfterSessionChange();
+        },
+      });
+      checkbox.checked = active;
+      list.appendChild(el("label", { class: "buff-item" + (active ? " is-active" : ""), for: id }, [
+        checkbox,
+        el("span", { class: "buff-item__body" }, [
+          el("span", { class: "buff-item__name" }, [b.name]),
+          el("span", { class: "buff-item__note" }, [b.note]),
+        ]),
+      ]));
+    });
+    panel.appendChild(list);
+  }
+
+  function renderConditionsPanel() {
+    const session = readSession();
+    const panel = $("#conditionsPanel");
+    panel.innerHTML = "";
+    panel.appendChild(el("h3", {}, ["Other Conditions"]));
+    panel.appendChild(el("p", { class: "session-panel__sub" }, ["Anything not covered above — shaken, prone, grappled, an ally's buff, whatever's live right now."]));
+    panel.appendChild(el("textarea", {
+      class: "session-textarea session-textarea--small",
+      rows: "3",
+      placeholder: "e.g. Shaken (2 rounds), standing in difficult terrain…",
+      oninput: (e) => writeSession({ conditions: e.target.value }),
+    }, [session.conditions]));
+  }
+
+  function renderNotesPanel() {
+    const session = readSession();
+    const panel = $("#notesPanel");
+    panel.innerHTML = "";
+    panel.appendChild(el("h3", {}, ["Session Notes"]));
+    panel.appendChild(el("textarea", {
+      class: "session-textarea",
+      rows: "3",
+      placeholder: "Scratch notes for this session— loot, NPC names, plot threads…",
+      oninput: (e) => writeSession({ notes: e.target.value }),
+    }, [session.notes]));
+  }
+
+  function renderSession() {
+    renderHpPanel();
+    renderCompanionHpPanel();
+    renderWildshapeUsesPanel();
+    renderMoneyTrackerPanel();
+    renderBuffsPanel();
+    renderConditionsPanel();
+    renderNotesPanel();
+  }
+
+  /* ================================================================
    * HERO / OVERVIEW
    * ================================================================ */
   function renderOverview() {
     const c = CHARACTER;
+    const session = readSession();
+    const stats = getEffectiveStats();
     $("#f-player").textContent = c.player;
     $("#f-size").textContent = c.size;
     $("#f-age").textContent = c.age;
@@ -87,10 +399,11 @@
     $("#f-hair").textContent = c.hair;
     $("#f-languages").textContent = c.languages.join(", ");
 
+    const speedNote = stats.speed !== c.speed.value ? `base ${c.speed.value} + buffs` : "base 30";
     const vitals = [
-      { label: "Hit Points", value: c.hp.total, sub: c.hp.hitDice },
-      { label: "Armor Class", value: c.ac.total, sub: `touch ${c.ac.touch} / flat ${c.ac.flatFooted}` },
-      { label: "Speed", value: `${c.speed.value} ft.`, sub: "base 30" },
+      { label: "Hit Points", value: `${session.currentHP} / ${c.hp.total}`, sub: c.hp.hitDice },
+      { label: "Armor Class", value: stats.ac.total, sub: `touch ${stats.ac.touch} / flat ${stats.ac.flatFooted}` },
+      { label: "Speed", value: `${stats.speed} ft.`, sub: speedNote },
       { label: "Initiative", value: modStr(c.initiative), sub: "" },
       { label: "Base Attack", value: c.bab, sub: `grapple ${c.grapple}` },
     ];
@@ -108,13 +421,16 @@
    * ABILITY SCORES
    * ================================================================ */
   function renderAbilities() {
+    const stats = getEffectiveStats();
     const grid = $("#abilityGrid");
     grid.innerHTML = "";
-    Object.entries(CHARACTER.abilities).forEach(([name, a]) => {
-      grid.appendChild(el("div", { class: "ability-card" }, [
+    Object.entries(CHARACTER.abilities).forEach(([name]) => {
+      const eff = stats.abilities[name];
+      grid.appendChild(el("div", { class: "ability-card" + (eff.bonus ? " is-buffed" : "") }, [
         el("div", { class: "ability-card__name" }, [name]),
-        el("div", { class: "ability-card__score" }, [String(a.score)]),
-        el("div", { class: "ability-card__mod" }, [modStr(a.mod)]),
+        el("div", { class: "ability-card__score" }, [String(eff.score)]),
+        el("div", { class: "ability-card__mod" }, [modStr(eff.mod)]),
+        eff.bonus ? el("div", { class: "ability-card__buff" }, [`${modStr(eff.bonus)} buff`]) : null,
       ]));
     });
   }
@@ -124,14 +440,19 @@
    * ================================================================ */
   function renderCombat() {
     const c = CHARACTER;
+    const stats = getEffectiveStats();
+    const ac = stats.ac;
+    const saves = stats.saves;
 
     const acPanel = $("#acPanel");
     acPanel.innerHTML = "";
     acPanel.appendChild(el("h3", {}, ["Armor Class"]));
     acPanel.appendChild(el("div", { class: "kv-list" }, [
-      row("Total", `${c.ac.total} (flat ${c.ac.flatFooted}, touch ${c.ac.touch})`),
-      row("Base + Armor + Dex", `10 + ${c.ac.armor} + ${c.ac.dex}`),
+      row("Total", `${ac.total} (flat ${ac.flatFooted}, touch ${ac.touch})`),
+      row("Base + Armor + Dex", `10 + ${ac.armor} + ${c.ac.dex}`),
       row("Armor worn", `${c.armorWorn.name} (${c.armorWorn.type})`),
+      ac.natural ? row("Natural armor (buffed)", modStr(ac.natural)) : null,
+      ac.deflection ? row("Deflection (buffed)", modStr(ac.deflection)) : null,
       row("Max Dex bonus", modStr(c.armorWorn.maxDex)),
       row("Armor check penalty", modStr(c.armorWorn.checkPenalty)),
       row("Arcane spell failure", `${c.armorWorn.spellFailure}%`),
@@ -141,9 +462,9 @@
     savesPanel.innerHTML = "";
     savesPanel.appendChild(el("h3", {}, ["Saving Throws"]));
     savesPanel.appendChild(el("div", { class: "kv-list" }, [
-      row("Fortitude (Con)", `${modStr(c.saves.fort.total)}  (${c.saves.fort.base} base ${modStr(c.saves.fort.abilityMod)})`),
-      row("Reflex (Dex)", `${modStr(c.saves.reflex.total)}  (${c.saves.reflex.base} base ${modStr(c.saves.reflex.abilityMod)})`),
-      row("Will (Wis)", `${modStr(c.saves.will.total)}  (${c.saves.will.base} base ${modStr(c.saves.will.abilityMod)})`),
+      row("Fortitude (Con)", `${modStr(saves.fort.total)}  (${saves.fort.base} base ${modStr(saves.fort.abilityMod)}${saves.fort.resist ? ` ${modStr(saves.fort.resist)} resist` : ""})`),
+      row("Reflex (Dex)", `${modStr(saves.reflex.total)}  (${saves.reflex.base} base ${modStr(saves.reflex.abilityMod)}${saves.reflex.resist ? ` ${modStr(saves.reflex.resist)} resist` : ""})`),
+      row("Will (Wis)", `${modStr(saves.will.total)}  (${saves.will.base} base ${modStr(saves.will.abilityMod)}${saves.will.resist ? ` ${modStr(saves.will.resist)} resist` : ""})`),
       row("Melee / Ranged", `${c.melee} / ${c.ranged}`),
     ]));
 
@@ -555,6 +876,7 @@
    * ================================================================ */
   function init() {
     setupTheme();
+    renderSession();
     renderOverview();
     renderAbilities();
     renderCombat();

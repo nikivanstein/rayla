@@ -36,6 +36,7 @@
   </div>
   <ul class="side-nav__list">
     <li><a href="#overview">Overview</a></li>
+    <li><a href="#session">Session Tracker</a></li>
     <li><a href="#combat">Combat</a></li>
     <li><a href="#skills">Skills</a></li>
     <li><a href="#feats">Feats &amp; Features</a></li>
@@ -73,6 +74,24 @@
     </div>
     <div class="hero__vitals" id="vitalsStrip"></div>
   </header>
+
+  <section class="section section--session" id="session">
+    <div class="section__head">
+      <h2>Session Tracker</h2>
+      <p class="section__note">For use at the table &mdash; everything here lives in this browser's storage, not in <code>/data</code>. Nothing here overwrites the sheet; copy values back into <code>/data</code> by hand if you want them to stick.</p>
+    </div>
+    <div class="session-grid">
+      <div class="panel session-panel" id="hpPanel"></div>
+      <div class="panel session-panel" id="companionHpPanel"></div>
+      <div class="panel session-panel" id="wildshapeUsesPanel"></div>
+      <div class="panel session-panel" id="moneyTrackerPanel"></div>
+    </div>
+    <div class="panel session-panel session-panel--wide" id="buffsPanel"></div>
+    <div class="session-grid session-grid--notes">
+      <div class="panel session-panel" id="conditionsPanel"></div>
+      <div class="panel session-panel" id="notesPanel"></div>
+    </div>
+  </section>
 
   <section class="section">
     <div class="section__head">
@@ -167,6 +186,7 @@
 <script src="data/character.js"></script>
 <script src="data/spells.js"></script>
 <script src="data/wildshape.js"></script>
+<script src="data/buffs.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
