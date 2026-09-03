@@ -986,9 +986,16 @@ details[open] > .ws-card__summary .ws-card__chevron { transform: rotate(90deg); 
     --surface: #ffffff !important; --surface-2: #f2f2f2 !important;
     --border: #999999 !important; --border-soft: #cccccc !important;
     --text: #000000 !important; --text-muted: #333333 !important; --text-faint: #555555 !important;
-    --accent: #000000 !important; --accent-strong: #000000 !important; --gold: #000000 !important;
-    --lvl-0: #000000 !important; --lvl-1: #000000 !important; --lvl-2: #000000 !important; --lvl-3: #000000 !important;
-    --lvl-4: #000000 !important; --lvl-5: #000000 !important; --lvl-6: #000000 !important; --lvl-7: #000000 !important;
+    --accent: #000000 !important; --accent-strong: #000000 !important;
+    /* --gold and --lvl-0..7 are deliberately NOT flattened here — on a
+       color printer, light tints of them make headers easier to scan
+       (see the color-mix() uses below). Body text stays black either way. */
+    /* Standard, always-installed fonts — a printout shouldn't depend on
+       Google Fonts having loaded, and plain system faces read better
+       at the small sizes a compact print layout needs anyway. */
+    --font-display: Georgia, 'Times New Roman', Times, serif !important;
+    --font-body: Arial, Helvetica, sans-serif !important;
+    --font-mono: 'Courier New', Courier, monospace !important;
   }
   * { box-shadow: none !important; text-shadow: none !important; transition: none !important; animation: none !important; }
   body { font-size: 10.5px; line-height: 1.35; }
@@ -1001,15 +1008,22 @@ details[open] > .ws-card__summary .ws-card__chevron { transform: rotate(90deg); 
     display: none !important;
   }
 
-  main { margin-left: 0; max-width: none; padding: 0; }
+  /* @page's margin is only honored when the browser's print-dialog
+     margin setting is "Default" — pick "None" (or a PDF pathway that
+     ignores page CSS) and the whole sheet prints edge-to-edge. Baking
+     real padding into the content itself guarantees left/right margin
+     on every page regardless, and top/bottom margin at least on the
+     first/last page. */
+  main { margin-left: 0; max-width: none; padding: 6mm 8mm; }
 
-  /* Feats / class features are force-opened before printing (see
-     setupPrintExpand in app.js — modern Chromium's content-visibility
-     handling for closed <details> can't be beaten with CSS alone). The
-     disclosure triangle has no purpose once everything's already open. */
+  /* Feats / class features print as a compact title-only index (like
+     Special Qualities) rather than the full descriptions shown on
+     screen — with ~20 entries, the rules text is what was bloating this
+     section; titles are enough to jog memory or know what to look up. */
   .feat-item__summary::before { content: '' !important; }
+  .feat-item__desc { display: none !important; }
   .feat-item { border: 1px solid var(--border-soft); break-inside: avoid; }
-  .feat-item__summary { cursor: default; font-weight: 700; }
+  .feat-item__summary { cursor: default; font-weight: 600; padding: 5px 8px; font-size: 9.5px; }
 
   .hero__top { gap: 16px; }
   .hero__portrait { width: 110px; height: 110px; border-width: 1px; }
@@ -1029,25 +1043,50 @@ details[open] > .ws-card__summary .ws-card__chevron { transform: rotate(90deg); 
   /* The printed page is narrower than several of the app's mobile
      breakpoints (e.g. 860/900px) — without this, Chrome's print engine
      would stack these back into single columns, wasting paper. */
-  .ability-grid { grid-template-columns: repeat(6, 1fr) !important; gap: 6px; }
+  .ability-grid { grid-template-columns: repeat(6, 1fr) !important; gap: 4px; }
   .combat-grid { grid-template-columns: 1fr 1fr 1.3fr !important; gap: 6px; }
   .equip-grid { grid-template-columns: 1.6fr 1fr !important; }
-  /* A multi-column grid can't reflow around a page break — a tall item
-     in one column strands blank space next to it. A single flowing
-     column wastes far less paper here, since feats/features now carry
-     full descriptions. */
-  .tag-columns { grid-template-columns: 1fr !important; gap: 4px; }
+  /* Back to 3 columns now that feats/features are title-only (see
+     .feat-item__desc above) — with real content instead of full
+     descriptions, a tall item stranding blank space next to it is no
+     longer a practical risk, so the compact 3-column layout wins. */
+  .tag-columns { grid-template-columns: repeat(3, 1fr) !important; gap: 4px 10px; }
   .tag-list { gap: 4px; }
-  .ability-card { padding: 6px 4px; }
-  .ability-card__score { font-size: 20px; }
+  .ability-card { padding: 3px 2px; }
+  .ability-card__name { font-size: 9px; }
+  .ability-card__score { font-size: 14px; margin: 0; }
+  .ability-card__mod { font-size: 9px; }
 
   table { font-size: 9.5px !important; }
   th, td { padding: 3px 5px !important; }
   tr { break-inside: avoid; }
+  /* Skills/Equipment don't carry a per-item hue like spell levels do,
+     so a plain neutral-gold tint just marks them as header rows. */
+  .skills-table th, .equip-table th { background: color-mix(in srgb, var(--gold) 18%, white) !important; }
   .spell-table-wrap, .alt-table-wrap { overflow: visible !important; border: 1px solid var(--border-soft); }
   table.spell-table { min-width: 0 !important; width: 100%; table-layout: fixed; }
-  table.spell-table th { color: #000000 !important; background: #eeeeee !important; }
+  /* A light tint of the level's own color reads better than flat gray
+     on a color printer, and still costs almost no ink. */
+  table.spell-table th { color: #000000 !important; background: color-mix(in srgb, var(--lvl-c, var(--gold)) 25%, white) !important; }
   table.spell-table td.qty-multi { color: #000000 !important; }
+  .level-heading { border-bottom-color: var(--lvl-c, var(--gold)); }
+  .level-heading__title { color: var(--lvl-c, var(--gold)) !important; }
+  /* table-layout: fixed splits columns evenly with no widths set, which
+     starved Effect — the column that actually needs the room — down to
+     ~1/8th of the row. Give it the lion's share instead. Single-word
+     headers (QTY, DURATION) can't line-wrap, so their columns need
+     enough absolute width to fit the word or it visibly overflows into
+     the next cell — verified against a real rendered PDF, not just
+     eyeballed percentages. */
+  table.spell-table th:nth-child(1), table.spell-table td:nth-child(1) { width: 13%; }
+  table.spell-table th:nth-child(2), table.spell-table td:nth-child(2) { width: 6%; }
+  table.spell-table th:nth-child(3), table.spell-table td:nth-child(3) { width: 5%; }
+  table.spell-table th:nth-child(4), table.spell-table td:nth-child(4) { width: 10%; }
+  table.spell-table th:nth-child(5), table.spell-table td:nth-child(5) { width: 9%; }
+  table.spell-table th:nth-child(6), table.spell-table td:nth-child(6) { width: 11%; }
+  table.spell-table th:nth-child(7), table.spell-table td:nth-child(7) { width: 9%; }
+  table.spell-table th:nth-child(8), table.spell-table td:nth-child(8) { width: 37%; }
+  table.spell-table th { letter-spacing: 0; overflow-wrap: break-word; }
   /* Flex-in-table-cell sizing for a native <input> is unreliable across
      print engines — stack it instead so it can't overflow its cell. */
   .spellstaff-field { display: block; }
@@ -1058,8 +1097,12 @@ details[open] > .ws-card__summary .ws-card__chevron { transform: rotate(90deg); 
   .level-heading__title { font-size: 13px; }
 
   .companion-card { break-inside: avoid; }
+  /* All Wild Shape forms print open (see setupPrintExpand in app.js),
+     not just the first one shown open on screen — the chevron has
+     nothing left to toggle once everything's already expanded. */
   .ws-card { break-inside: avoid; }
   .ws-card__summary { cursor: default; }
+  .ws-card__chevron { display: none; }
 
   a { color: inherit; text-decoration: none; }
 }
