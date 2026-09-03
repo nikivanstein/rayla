@@ -824,6 +824,28 @@ table.spell-table tr td:first-child { color: var(--text); font-weight: 600; }
 table.spell-table td.num { font-family: var(--font-mono); text-align: center; }
 table.spell-table td.qty-multi { color: var(--gold); font-weight: 700; }
 
+.spellstaff-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border-soft);
+}
+.spellstaff-field label { font-size: 11.5px; color: var(--text-faint); white-space: nowrap; }
+.spellstaff-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  box-sizing: border-box;
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 3px 7px;
+}
+
 .alt-toggle-wrap { margin-top: 10px; }
 .alt-toggle {
   cursor: pointer;
@@ -945,4 +967,99 @@ details[open] > .ws-card__summary .ws-card__chevron { transform: rotate(90deg); 
   border-top: 1px solid var(--border);
   color: var(--text-faint);
   font-size: 12.5px;
+}
+
+/* =========================================================================
+   PRINT — a compact paper reference, not a screenshot of the web page.
+   Always renders ink-friendly (black on white) regardless of the active
+   screen theme. Skips things with no value on paper: the nav, the
+   interactive Session Tracker, prepare/unprepare buttons, the full
+   48-skill list, and spells she knows but hasn't prepared. Feats and
+   class features are forced open since their one-line rules text is the
+   main reason to print a reference at all.
+   ========================================================================= */
+@media print {
+  @page { size: A4; margin: 12mm; }
+
+  :root, [data-theme="eink"] {
+    --bg: #ffffff !important; --bg-soft: #ffffff !important;
+    --surface: #ffffff !important; --surface-2: #f2f2f2 !important;
+    --border: #999999 !important; --border-soft: #cccccc !important;
+    --text: #000000 !important; --text-muted: #333333 !important; --text-faint: #555555 !important;
+    --accent: #000000 !important; --accent-strong: #000000 !important; --gold: #000000 !important;
+    --lvl-0: #000000 !important; --lvl-1: #000000 !important; --lvl-2: #000000 !important; --lvl-3: #000000 !important;
+    --lvl-4: #000000 !important; --lvl-5: #000000 !important; --lvl-6: #000000 !important; --lvl-7: #000000 !important;
+  }
+  * { box-shadow: none !important; text-shadow: none !important; transition: none !important; animation: none !important; }
+  body { font-size: 10.5px; line-height: 1.35; }
+
+  /* Chrome / interactive-only UI has no place on paper. */
+  .side-nav, .nav-toggle, .nav-scrim, .skip-link,
+  .section--session,
+  .prep-btn, .slot-reset, .alt-toggle-wrap,
+  details.reveal {
+    display: none !important;
+  }
+
+  main { margin-left: 0; max-width: none; padding: 0; }
+
+  /* Feats / class features are force-opened before printing (see
+     setupPrintExpand in app.js — modern Chromium's content-visibility
+     handling for closed <details> can't be beaten with CSS alone). The
+     disclosure triangle has no purpose once everything's already open. */
+  .feat-item__summary::before { content: '' !important; }
+  .feat-item { border: 1px solid var(--border-soft); break-inside: avoid; }
+  .feat-item__summary { cursor: default; font-weight: 700; }
+
+  .hero__top { gap: 16px; }
+  .hero__portrait { width: 110px; height: 110px; border-width: 1px; }
+  .hero__name { font-size: 32px; }
+  .hero__subtitle { margin: 4px 0 10px; }
+  .hero__facts { margin-bottom: 12px; gap: 6px 20px; }
+  .hero__vitals { border: 1px solid var(--border); }
+  .vital { padding: 6px 10px; }
+  .vital__value { font-size: 16px; }
+
+  .section { margin: 14px 0; }
+  .section__head { padding-bottom: 4px; margin-bottom: 8px; }
+  .section__head h2 { font-size: 15px; }
+  .panel { padding: 8px 10px; border: 1px solid var(--border-soft); break-inside: avoid; }
+  .panel h3 { margin-bottom: 4px; }
+
+  /* The printed page is narrower than several of the app's mobile
+     breakpoints (e.g. 860/900px) — without this, Chrome's print engine
+     would stack these back into single columns, wasting paper. */
+  .ability-grid { grid-template-columns: repeat(6, 1fr) !important; gap: 6px; }
+  .combat-grid { grid-template-columns: 1fr 1fr 1.3fr !important; gap: 6px; }
+  .equip-grid { grid-template-columns: 1.6fr 1fr !important; }
+  /* A multi-column grid can't reflow around a page break — a tall item
+     in one column strands blank space next to it. A single flowing
+     column wastes far less paper here, since feats/features now carry
+     full descriptions. */
+  .tag-columns { grid-template-columns: 1fr !important; gap: 4px; }
+  .tag-list { gap: 4px; }
+  .ability-card { padding: 6px 4px; }
+  .ability-card__score { font-size: 20px; }
+
+  table { font-size: 9.5px !important; }
+  th, td { padding: 3px 5px !important; }
+  tr { break-inside: avoid; }
+  .spell-table-wrap, .alt-table-wrap { overflow: visible !important; border: 1px solid var(--border-soft); }
+  table.spell-table { min-width: 0 !important; width: 100%; table-layout: fixed; }
+  table.spell-table th { color: #000000 !important; background: #eeeeee !important; }
+  table.spell-table td.qty-multi { color: #000000 !important; }
+  /* Flex-in-table-cell sizing for a native <input> is unreliable across
+     print engines — stack it instead so it can't overflow its cell. */
+  .spellstaff-field { display: block; }
+  .spellstaff-input { display: block; width: 100%; margin-top: 2px; }
+
+  .level-block { margin-bottom: 14px; }
+  .level-heading { border-bottom-width: 1px; padding-bottom: 4px; margin-bottom: 6px; break-inside: avoid; break-after: avoid; }
+  .level-heading__title { font-size: 13px; }
+
+  .companion-card { break-inside: avoid; }
+  .ws-card { break-inside: avoid; }
+  .ws-card__summary { cursor: default; }
+
+  a { color: inherit; text-decoration: none; }
 }

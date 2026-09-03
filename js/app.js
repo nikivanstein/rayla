@@ -66,6 +66,7 @@
       activeBuffs: Array.isArray(s.activeBuffs) ? s.activeBuffs : [],
       conditions: s.conditions || "",
       notes: s.notes || "",
+      spellstaffContents: s.spellstaffContents || "",
     };
   }
   function writeSession(patch) {
@@ -186,6 +187,31 @@
       const next = document.documentElement.getAttribute("data-theme") !== "eink";
       apply(next);
       try { localStorage.setItem(THEME_KEY, next ? "eink" : "default"); } catch (e) { /* ignore */ }
+    });
+
+    const printBtn = $("#printBtn");
+    if (printBtn) printBtn.addEventListener("click", () => window.print());
+
+    setupPrintExpand();
+  }
+
+  /* ---------------------------------------------------------------- *
+   * Modern Chromium renders a closed <details> element's content
+   * through an internal content-visibility mechanism that a plain CSS
+   * "display: block !important" override can't defeat. So instead of
+   * fighting that in CSS, actually open the feats/class-features
+   * <details> right before printing (and put them back after), which
+   * uses the browser's real mechanism for revealing them.
+   * ---------------------------------------------------------------- */
+  function setupPrintExpand() {
+    let openedByUs = [];
+    window.addEventListener("beforeprint", () => {
+      openedByUs = Array.from(document.querySelectorAll(".feat-item:not([open])"));
+      openedByUs.forEach((d) => d.setAttribute("open", ""));
+    });
+    window.addEventListener("afterprint", () => {
+      openedByUs.forEach((d) => d.removeAttribute("open"));
+      openedByUs = [];
     });
   }
 
@@ -701,6 +727,19 @@
       // any fixed bonus like Spell Focus), so a Wisdom buff just shifts it
       // by the same delta \u2014 no per-spell school/ability data needed.
       const dc = s.dc + wisDelta;
+      const effectCell = el("td", {}, [s.effect]);
+      if (s.name === "Spellstaff") {
+        const session = readSession();
+        effectCell.appendChild(el("div", { class: "spellstaff-field" }, [
+          el("label", {}, ["Currently holds:"]),
+          el("input", {
+            type: "text", class: "spellstaff-input",
+            value: session.spellstaffContents,
+            placeholder: "e.g. Flame Strike",
+            oninput: (e) => writeSession({ spellstaffContents: e.target.value }),
+          }),
+        ]));
+      }
       tbody.appendChild(el("tr", {}, [
         el("td", {}, [s.name, btn]),
         el("td", { class: "num" + (s.qty > 1 ? " qty-multi" : "") }, [isAlt ? "\u2014" : String(s.qty)]),
@@ -712,7 +751,7 @@
         el("td", {}, [s.cast]),
         el("td", {}, [s.duration]),
         el("td", {}, [s.range]),
-        el("td", {}, [s.effect]),
+        effectCell,
       ]));
     });
     table.appendChild(tbody);
