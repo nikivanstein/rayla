@@ -191,6 +191,28 @@
 
     const printBtn = $("#printBtn");
     if (printBtn) printBtn.addEventListener("click", () => window.print());
+
+    setupPrintExpand();
+  }
+
+  /* ---------------------------------------------------------------- *
+   * Wild Shape forms print fully expanded (unlike the on-screen default
+   * of only the first one open) — modern Chromium renders a closed
+   * <details> element's content through an internal content-visibility
+   * mechanism that a plain CSS "display: block !important" override
+   * can't defeat, so the reliable fix is to actually open them right
+   * before printing and put them back after.
+   * ---------------------------------------------------------------- */
+  function setupPrintExpand() {
+    let openedByUs = [];
+    window.addEventListener("beforeprint", () => {
+      openedByUs = Array.from(document.querySelectorAll(".ws-card:not([open])"));
+      openedByUs.forEach((d) => d.setAttribute("open", ""));
+    });
+    window.addEventListener("afterprint", () => {
+      openedByUs.forEach((d) => d.removeAttribute("open"));
+      openedByUs = [];
+    });
   }
 
   /* ================================================================

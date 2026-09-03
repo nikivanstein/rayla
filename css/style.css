@@ -1097,8 +1097,12 @@ details[open] > .ws-card__summary .ws-card__chevron { transform: rotate(90deg); 
   .level-heading__title { font-size: 13px; }
 
   .companion-card { break-inside: avoid; }
+  /* All Wild Shape forms print open (see setupPrintExpand in app.js),
+     not just the first one shown open on screen — the chevron has
+     nothing left to toggle once everything's already expanded. */
   .ws-card { break-inside: avoid; }
   .ws-card__summary { cursor: default; }
+  .ws-card__chevron { display: none; }
 
   a { color: inherit; text-decoration: none; }
 }
