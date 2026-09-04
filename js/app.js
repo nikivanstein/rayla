@@ -196,12 +196,13 @@
   }
 
   /* ---------------------------------------------------------------- *
-   * Wild Shape forms print fully expanded (unlike the on-screen default
-   * of only the first one open) — modern Chromium renders a closed
-   * <details> element's content through an internal content-visibility
-   * mechanism that a plain CSS "display: block !important" override
-   * can't defeat, so the reliable fix is to actually open them right
-   * before printing and put them back after.
+   * Wild Shape forms and Summon Nature's Ally options (both .ws-card)
+   * print fully expanded, regardless of their on-screen open/closed
+   * state — modern Chromium renders a closed <details> element's
+   * content through an internal content-visibility mechanism that a
+   * plain CSS "display: block !important" override can't defeat, so
+   * the reliable fix is to actually open them right before printing
+   * and put them back after.
    * ---------------------------------------------------------------- */
   function setupPrintExpand() {
     let openedByUs = [];
@@ -856,69 +857,100 @@
   /* ================================================================
    * WILD SHAPE
    * ================================================================ */
-  function renderWildshape() {
-    const list = $("#wildshapeList");
-    list.innerHTML = "";
+  // Shared by Wild Shape forms and Summon Nature's Ally creatures \u2014 both
+  // are "collapsible full stat block" cards with the same field shape.
+  function buildCreatureCard(cw, colorValue, opts) {
+    const details = el("details", { class: "ws-card", style: `--ws-c: ${colorValue}` });
+    details.appendChild(el("summary", { class: "ws-card__summary" }, [
+      el("span", { class: "ws-card__name" }, [cw.name]),
+      el("span", { class: "ws-card__sub" }, [cw.subtitle]),
+      el("span", { class: "ws-card__chevron" }, ["\u25B8"]),
+    ]));
 
-    WILDSHAPE_DATA.forEach((ws, idx) => {
-      const details = el("details", { class: "ws-card", style: `--ws-c: ${ws.color}` });
-      details.appendChild(el("summary", { class: "ws-card__summary" }, [
-        el("span", { class: "ws-card__name" }, [ws.name]),
-        el("span", { class: "ws-card__sub" }, [ws.subtitle]),
-        el("span", { class: "ws-card__chevron" }, ["\u25B8"]),
-      ]));
+    const body = el("div", { class: "ws-card__body" });
 
-      const body = el("div", { class: "ws-card__body" });
+    body.appendChild(el("div", { class: "ws-stat-row" }, [
+      statRow("Hit Dice", cw.hitDice),
+      statRow("AC", cw.ac),
+      statRow("Saves", cw.saves),
+      statRow("Speed", cw.speed),
+    ]));
 
-      body.appendChild(el("div", { class: "ws-stat-row" }, [
-        statRow("Hit Dice", ws.hitDice),
-        statRow("AC", ws.ac),
-        statRow("Saves", ws.saves),
-        statRow("Speed", ws.speed),
-      ]));
-
-      const abilities = el("div", { class: "ws-abilities" });
-      Object.entries(ws.abilities).forEach(([k, v]) => {
-        abilities.appendChild(el("div", {}, [el("div", { class: "lab" }, [k]), el("div", { class: "val" }, [String(v)])]));
-      });
-      body.appendChild(abilities);
-
-      body.appendChild(el("div", { class: "ws-stat-row" }, [
-        statRow("Attack", ws.attack),
-        ws.fullAttack ? statRow("Full Attack", ws.fullAttack) : null,
-        ws.specialAttacks ? statRow("Special Attacks", ws.specialAttacks) : null,
-        statRow("Special Qualities", ws.specialQualities),
-        statRow("Feats", ws.feats),
-        statRow("Skills", ws.skills),
-      ]));
-
-      if (ws.breathWeapon) {
-        body.appendChild(el("div", { class: "ws-block" }, [
-          el("h4", {}, ["Breath Weapon (Su)"]),
-          el("p", {}, [ws.breathWeapon]),
-        ]));
-      }
-
-      if (ws.abilitiesText && ws.abilitiesText.length) {
-        const b = el("div", { class: "ws-block" }, [el("h4", {}, ["Special Ability Details"])]);
-        ws.abilitiesText.forEach((a) => {
-          b.appendChild(el("p", { class: "ws-ability-detail" }, [el("b", {}, [a.name + ": "]), a.desc]));
-        });
-        body.appendChild(b);
-      }
-
-      if (ws.notes) body.appendChild(el("p", { class: "ws-notes" }, [ws.notes]));
-      body.appendChild(el("p", { class: "ws-source" }, ["Source: " + ws.source]));
-
-      details.appendChild(body);
-      if (idx === 0) details.setAttribute("open", "");
-      list.appendChild(details);
+    const abilities = el("div", { class: "ws-abilities" });
+    Object.entries(cw.abilities).forEach(([k, v]) => {
+      abilities.appendChild(el("div", {}, [el("div", { class: "lab" }, [k]), el("div", { class: "val" }, [String(v)])]));
     });
+    body.appendChild(abilities);
+
+    body.appendChild(el("div", { class: "ws-stat-row" }, [
+      statRow("Attack", cw.attack),
+      cw.fullAttack ? statRow("Full Attack", cw.fullAttack) : null,
+      cw.specialAttacks ? statRow("Special Attacks", cw.specialAttacks) : null,
+      statRow("Special Qualities", cw.specialQualities),
+      statRow("Feats", cw.feats),
+      statRow("Skills", cw.skills),
+    ]));
+
+    if (cw.breathWeapon) {
+      body.appendChild(el("div", { class: "ws-block" }, [
+        el("h4", {}, ["Breath Weapon (Su)"]),
+        el("p", {}, [cw.breathWeapon]),
+      ]));
+    }
+
+    if (cw.abilitiesText && cw.abilitiesText.length) {
+      const b = el("div", { class: "ws-block" }, [el("h4", {}, ["Special Ability Details"])]);
+      cw.abilitiesText.forEach((a) => {
+        b.appendChild(el("p", { class: "ws-ability-detail" }, [el("b", {}, [a.name + ": "]), a.desc]));
+      });
+      body.appendChild(b);
+    }
+
+    if (cw.notes) body.appendChild(el("p", { class: "ws-notes" }, [cw.notes]));
+    if (cw.source) body.appendChild(el("p", { class: "ws-source" }, ["Source: " + cw.source]));
+
+    details.appendChild(body);
+    if (opts && opts.open) details.setAttribute("open", "");
+    return details;
 
     function statRow(label, value) {
       if (!value) return null;
       return el("div", { class: "row" }, [el("span", { class: "lab" }, [label]), el("span", { class: "val" }, [value])]);
     }
+  }
+
+  function renderWildshape() {
+    const list = $("#wildshapeList");
+    list.innerHTML = "";
+    WILDSHAPE_DATA.forEach((ws, idx) => {
+      list.appendChild(buildCreatureCard(ws, ws.color, { open: idx === 0 }));
+    });
+  }
+
+  function renderSummons() {
+    const container = $("#summonLevels");
+    if (!container || typeof SUMMON_DATA === "undefined") return;
+    container.innerHTML = "";
+
+    Object.keys(SUMMON_DATA).forEach((levelKey) => {
+      const lvl = SUMMON_DATA[levelKey];
+      const block = el("div", { class: "level-block", style: `--lvl-c: var(--lvl-${levelKey})` });
+      block.appendChild(el("div", { class: "level-heading" }, [
+        el("span", { class: "level-heading__title" }, [lvl.label]),
+        el("span", { class: "level-heading__meta" }, [
+          `${lvl.creatures.length} option${lvl.creatures.length !== 1 ? "s" : ""}`,
+        ]),
+      ]));
+      if (lvl.note) block.appendChild(el("p", { class: "section__note" }, [lvl.note]));
+
+      const cardList = el("div", { class: "wildshape-list" });
+      lvl.creatures.forEach((cw) => {
+        cardList.appendChild(buildCreatureCard(cw, `var(--lvl-${levelKey})`, { open: false }));
+      });
+      block.appendChild(cardList);
+
+      container.appendChild(block);
+    });
   }
 
   /* ================================================================
@@ -964,6 +996,7 @@
     renderCompanion();
     renderSpells();
     renderWildshape();
+    renderSummons();
     setupNav();
   }
 
