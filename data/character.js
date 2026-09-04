@@ -93,7 +93,7 @@ const CHARACTER = {
     },
     {
       name: "Dragon Wild Shape",
-      description: "Prerequisites: Wis 19, Knowledge (nature) 15 ranks, wild shape class feature. Lets you use wild shape to become a Small or Medium true dragon, gaining its Extraordinary and Supernatural abilities — but not its spells or spell-like abilities. (Draconomicon)",
+      description: "Prerequisites: Wis 19, Knowledge (nature) 15 ranks, wild shape class feature. Lets you use wild shape to become a true dragon, gaining its Extraordinary and Supernatural abilities — but not its spells or spell-like abilities. (Draconomicon)",
     },
   ],
 
@@ -216,7 +216,6 @@ const CHARACTER = {
     { name: "Emeril Horizon Glass", qty: 1, cost: "\u2014", weight: "\u2014", magic: "While holding this stone, your touch spells become short-range spells instead (30 ft.). Usable 3/day." },
     { name: "Emeril of the Stretched Horizon", qty: 1, cost: "\u2014", weight: "\u2014", magic: "While holding this stone, spells you cast gain increased range, as the Enlarge Spell metamagic feat. Usable 3/day." },
     { name: "Quarterstaff", qty: 1, cost: "\u2014", weight: "4 lbs." },
-    { name: "Hide armor", qty: 1, cost: "15 gp", weight: "25 lbs." },
     { name: "Alchemist's tools", qty: 1, cost: "5 gp", weight: "5 lbs." },
     { name: "Animal Training Kit", qty: 1, cost: "75 gp", weight: "15 lbs." },
     { name: "Elven Harp, Hand", qty: 1, cost: "150 gp", weight: "2 lbs." },
