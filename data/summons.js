@@ -30,6 +30,12 @@
  * All base numbers are drawn from 3.5 SRD / Monster Manual / Monster
  * Manual III / Fiend Folio stat blocks; sourcing confidence is noted per
  * creature where a less common sourcebook made cross-checking harder.
+ *
+ * Optional illustration: set `image: "img/summons/<file>.jpg"` on any
+ * creature to show a full-width banner above its stat block, in both the
+ * list layout and the compact Card layout (toggle in the section head).
+ * There's nothing to wire up beyond adding the field — if the file is
+ * missing the banner is simply skipped, no broken-image icon.
  */
 
 const SUMMON_DATA = {

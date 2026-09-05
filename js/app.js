@@ -48,6 +48,7 @@
   const SLOTS_KEY = "rayla:slotsUsed:v1";
   const THEME_KEY = "rayla:theme:v1";
   const SESSION_KEY = "rayla:session:v1";
+  const SUMMON_LAYOUT_KEY = "rayla:summonLayout:v1";
 
   const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 
@@ -857,10 +858,42 @@
   /* ================================================================
    * WILD SHAPE
    * ================================================================ */
+  // An optional full-width illustration banner, shared by both creature
+  // card styles below. Sits outside any collapsible <details> so it's
+  // always visible, even when the stat block itself is closed. If the
+  // image fails to load (or a creature simply has no `image` set), no
+  // banner is added at all rather than showing a broken-image icon.
+  function creatureBanner(cw, wrapClass) {
+    if (!cw.image) return null;
+    const wrap = el("div", { class: wrapClass });
+    const img = el("img", {
+      src: cw.image,
+      alt: cw.name,
+      loading: "lazy",
+      onerror: (e) => e.target.closest("." + wrapClass).remove(),
+    });
+    wrap.appendChild(img);
+    return wrap;
+  }
+
+  const abilityMod = (score) => (typeof score === "number" ? Math.floor((score - 10) / 2) : null);
+
+  // Our subtitle strings are always "CR X \u00B7 Type \u00B7 Summon Nature's Ally N"
+  // (or just "CR X \u00B7 Type \u00B7 ..." for Wild Shape forms) \u2014 split them back
+  // apart for the stat card's separate CR/type fields.
+  function splitSubtitle(subtitle) {
+    const parts = (subtitle || "").split(" \u00B7 ").map((p) => p.trim());
+    return { cr: parts[0] || "", type: parts[1] || subtitle || "" };
+  }
+
   // Shared by Wild Shape forms and Summon Nature's Ally creatures \u2014 both
   // are "collapsible full stat block" cards with the same field shape.
   function buildCreatureCard(cw, colorValue, opts) {
-    const details = el("details", { class: "ws-card", style: `--ws-c: ${colorValue}` });
+    const wrap = el("div", { class: "ws-card-wrap", style: `--ws-c: ${colorValue}` });
+    const banner = creatureBanner(cw, "ws-card-banner");
+    if (banner) wrap.appendChild(banner);
+
+    const details = el("details", { class: "ws-card" });
     details.appendChild(el("summary", { class: "ws-card__summary" }, [
       el("span", { class: "ws-card__name" }, [cw.name]),
       el("span", { class: "ws-card__sub" }, [cw.subtitle]),
@@ -911,11 +944,84 @@
 
     details.appendChild(body);
     if (opts && opts.open) details.setAttribute("open", "");
-    return details;
+    wrap.appendChild(details);
+    return wrap;
 
     function statRow(label, value) {
       if (!value) return null;
       return el("div", { class: "row" }, [el("span", { class: "lab" }, [label]), el("span", { class: "val" }, [value])]);
+    }
+  }
+
+  // Compact, non-collapsible "index card" layout for Summon Nature's
+  // Ally \u2014 an alternative to buildCreatureCard's roomy collapsible rows,
+  // aimed at fitting several stat blocks on a printed page. Same source
+  // data, just laid out densely instead of expansively.
+  function buildStatCard(cw, colorValue) {
+    const card = el("article", { class: "stat-card", style: `--sc-c: ${colorValue}` });
+    const banner = creatureBanner(cw, "stat-card-banner");
+    if (banner) card.appendChild(banner);
+
+    card.appendChild(el("div", { class: "stat-card__head" }, [
+      el("h3", { class: "stat-card__name" }, [cw.name]),
+    ]));
+
+    const body = el("div", { class: "stat-card__body" });
+    const { cr, type } = splitSubtitle(cw.subtitle);
+    body.appendChild(el("p", { class: "stat-card__type" }, [type]));
+
+    body.appendChild(el("div", { class: "stat-card__topline" }, [
+      topline("AC", cw.ac), topline("CR", cr.replace(/^CR\s*/, "")),
+      topline("HP", cw.hitDice), topline("Spd", cw.speed),
+    ]));
+
+    const abilities = el("div", { class: "stat-card__abilities" });
+    Object.entries(cw.abilities).forEach(([k, v]) => {
+      const mod = abilityMod(v);
+      abilities.appendChild(el("div", {}, [
+        el("div", { class: "lab" }, [k]),
+        el("div", { class: "val" }, [mod === null ? String(v) : `${v} (${modStr(mod)})`]),
+      ]));
+    });
+    body.appendChild(abilities);
+
+    const lines = el("div", { class: "stat-card__lines" });
+    line(lines, "Saves", cw.saves);
+    line(lines, "Skills", cw.skills);
+    line(lines, "Qualities", cw.specialQualities);
+    line(lines, "Feats", cw.feats);
+    body.appendChild(lines);
+
+    const hasAttack = cw.attack || cw.fullAttack || cw.specialAttacks;
+    if (hasAttack) {
+      body.appendChild(el("hr", { class: "stat-card__rule" }));
+      const atk = el("div", { class: "stat-card__lines" });
+      line(atk, "Attack", cw.fullAttack || cw.attack);
+      line(atk, "Special", cw.specialAttacks);
+      body.appendChild(atk);
+    }
+
+    if (cw.abilitiesText && cw.abilitiesText.length) {
+      body.appendChild(el("hr", { class: "stat-card__rule" }));
+      const details = el("div", { class: "stat-card__lines" });
+      cw.abilitiesText.forEach((a) => {
+        details.appendChild(el("p", {}, [el("b", {}, [a.name + ": "]), a.desc]));
+      });
+      body.appendChild(details);
+    }
+
+    if (cw.notes) body.appendChild(el("p", { class: "stat-card__notes" }, [cw.notes]));
+    if (cw.source) body.appendChild(el("p", { class: "stat-card__source" }, ["Source: " + cw.source]));
+
+    card.appendChild(body);
+    return card;
+
+    function topline(label, value) {
+      return el("div", {}, [el("b", {}, [label + ":"]), el("span", {}, [" " + (value || "\u2014")])]);
+    }
+    function line(root, label, value) {
+      if (!value) return;
+      root.appendChild(el("p", {}, [el("b", {}, [label + ": "]), value]));
     }
   }
 
@@ -930,6 +1036,7 @@
   function renderSummons() {
     const container = $("#summonLevels");
     if (!container || typeof SUMMON_DATA === "undefined") return;
+    const isCards = readStore(SUMMON_LAYOUT_KEY, "list") === "cards";
     container.innerHTML = "";
 
     Object.keys(SUMMON_DATA).forEach((levelKey) => {
@@ -943,13 +1050,37 @@
       ]));
       if (lvl.note) block.appendChild(el("p", { class: "section__note" }, [lvl.note]));
 
-      const cardList = el("div", { class: "wildshape-list" });
+      const cardList = el("div", { class: isCards ? "stat-card-grid" : "wildshape-list" });
       lvl.creatures.forEach((cw) => {
-        cardList.appendChild(buildCreatureCard(cw, `var(--lvl-${levelKey})`, { open: false }));
+        cardList.appendChild(
+          isCards
+            ? buildStatCard(cw, `var(--lvl-${levelKey})`)
+            : buildCreatureCard(cw, `var(--lvl-${levelKey})`, { open: false })
+        );
       });
       block.appendChild(cardList);
 
       container.appendChild(block);
+    });
+  }
+
+  function setupSummonLayoutToggle() {
+    const btn = $("#summonLayoutToggle");
+    if (!btn) return;
+    const label = $(".layout-toggle__label", btn);
+
+    function reflect() {
+      const isCards = readStore(SUMMON_LAYOUT_KEY, "list") === "cards";
+      btn.setAttribute("aria-pressed", String(isCards));
+      label.textContent = isCards ? "Card layout: on" : "Card layout";
+    }
+    reflect();
+
+    btn.addEventListener("click", () => {
+      const isCards = readStore(SUMMON_LAYOUT_KEY, "list") === "cards";
+      writeStore(SUMMON_LAYOUT_KEY, isCards ? "list" : "cards");
+      reflect();
+      renderSummons();
     });
   }
 
@@ -997,6 +1128,7 @@
     renderSpells();
     renderWildshape();
     renderSummons();
+    setupSummonLayoutToggle();
     setupNav();
   }
 
