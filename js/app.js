@@ -49,6 +49,7 @@
   const THEME_KEY = "rayla:theme:v1";
   const SESSION_KEY = "rayla:session:v1";
   const SUMMON_LAYOUT_KEY = "rayla:summonLayout:v1";
+  const WILDSHAPE_LAYOUT_KEY = "rayla:wildshapeLayout:v1";
 
   const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 
@@ -1027,9 +1028,32 @@
 
   function renderWildshape() {
     const list = $("#wildshapeList");
+    if (!list) return;
+    const isCards = readStore(WILDSHAPE_LAYOUT_KEY, "list") === "cards";
+    list.className = isCards ? "stat-card-grid" : "wildshape-list";
     list.innerHTML = "";
     WILDSHAPE_DATA.forEach((ws, idx) => {
-      list.appendChild(buildCreatureCard(ws, ws.color, { open: idx === 0 }));
+      list.appendChild(isCards ? buildStatCard(ws, ws.color) : buildCreatureCard(ws, ws.color, { open: idx === 0 }));
+    });
+  }
+
+  function setupWildshapeLayoutToggle() {
+    const btn = $("#wildshapeLayoutToggle");
+    if (!btn) return;
+    const label = $(".layout-toggle__label", btn);
+
+    function reflect() {
+      const isCards = readStore(WILDSHAPE_LAYOUT_KEY, "list") === "cards";
+      btn.setAttribute("aria-pressed", String(isCards));
+      label.textContent = isCards ? "Card layout: on" : "Card layout";
+    }
+    reflect();
+
+    btn.addEventListener("click", () => {
+      const isCards = readStore(WILDSHAPE_LAYOUT_KEY, "list") === "cards";
+      writeStore(WILDSHAPE_LAYOUT_KEY, isCards ? "list" : "cards");
+      reflect();
+      renderWildshape();
     });
   }
 
@@ -1128,6 +1152,7 @@
     renderSpells();
     renderWildshape();
     renderSummons();
+    setupWildshapeLayoutToggle();
     setupSummonLayoutToggle();
     setupNav();
   }

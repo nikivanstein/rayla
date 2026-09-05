@@ -4,6 +4,11 @@
  * One object per creature you can wild shape into. Add a new one by
  * copying an existing object and filling in its fields \u2014 it will show
  * up on the page automatically as a new collapsible card.
+ *
+ * Optional illustration: set `image: "img/<file>.png"` on any creature to
+ * show a full-width banner above its stat block, in both the list layout
+ * and the compact Card layout (toggle in the section head) \u2014 same
+ * mechanism as SUMMON_DATA. Missing file just skips the banner.
  */
 
 const WILDSHAPE_DATA = [

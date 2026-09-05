@@ -1227,14 +1227,16 @@ details[open] > .ws-card__summary .ws-card__chevron { transform: rotate(90deg); 
   .ws-card-wrap { break-inside: avoid; }
   .ws-card__summary { cursor: default; }
   .ws-card__chevron { display: none; }
-  .ws-card-banner { aspect-ratio: 21 / 5; }
+  /* Illustration banners are a nice-to-have on screen but just burn ink
+     and page count on paper, so they're dropped entirely when printing —
+     for both the list layout and the compact Card layout below. */
+  .ws-card-banner, .stat-card-banner { display: none !important; }
 
-  /* Card layout for Summon Nature's Ally: this is the whole point of the
-     toggle, so pack it tight — two index-card-sized columns per page
-     instead of one wide card per row. */
+  /* Card layout (Summon Nature's Ally and Wild Shape both use it): this
+     is the whole point of the toggle, so pack it tight — two index-card-
+     sized columns per page instead of one wide card per row. */
   .stat-card-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
   .stat-card { font-size: 9px; break-inside: avoid; }
-  .stat-card-banner { aspect-ratio: 16 / 7; }
   .stat-card__head { padding: 5px 9px; }
   .stat-card__name { font-size: 13px; }
   .stat-card__body { padding: 6px 9px 8px; }
