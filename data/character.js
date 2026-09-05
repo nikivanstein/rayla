@@ -35,7 +35,7 @@ const CHARACTER = {
   },
 
   hp: { total: 83, hitDice: "13d8" },
-  speed: { value: 20, note: "Base 30 ft., reduced by medium armor" },
+  speed: { value: 30, note: "Base 30 ft." },
   initiative: 0,
 
   ac: {
@@ -60,7 +60,7 @@ const CHARACTER = {
     { name: "Unarmed strike", bonus: "+4/-1", damage: "1d3-1", critical: "x2", type: "Bludgeoning", weight: "0 lbs." },
   ],
 
-  armorWorn: { name: "Hide", type: "Medium", armorBonus: 3, maxDex: 4, checkPenalty: -3, spellFailure: 20, speed: 20, weight: 25 },
+  armorWorn: { name: "", type: "", armorBonus: 0, maxDex: 0, checkPenalty: 0, spellFailure: 0, speed: 30, weight: 0 },
 
   feats: [
     {
@@ -160,22 +160,22 @@ const CHARACTER = {
   // everything else is derived (ability mod + misc bonuses).
   skills: [
     { name: "Appraise", ability: "Int", ranks: 0, abilityMod: 2, misc: 0, total: 2 },
-    { name: "Balance*", ability: "Dex", ranks: 0, abilityMod: 0, misc: -3, total: -3 },
+    { name: "Balance*", ability: "Dex", ranks: 0, abilityMod: 0, misc: 0, total: 0 },
     { name: "Bluff", ability: "Cha", ranks: 0, abilityMod: 2, misc: 0, total: 2 },
-    { name: "Climb*", ability: "Str", ranks: 1, abilityMod: -1, misc: -3, total: -3 },
+    { name: "Climb*", ability: "Str", ranks: 1, abilityMod: -1, misc: 0, total: 0 },
     { name: "Concentration", ability: "Con", ranks: 16, abilityMod: 1, misc: 0, total: 17 },
     { name: "Control Shape", ability: "Wis", ranks: 0, abilityMod: 4, misc: 0, total: 4 },
     { name: "Craft (\u2014)", ability: "Int", ranks: 0, abilityMod: 2, misc: -2, total: 0 },
     { name: "Diplomacy", ability: "Cha", ranks: 8, abilityMod: 2, misc: 0, total: 10 },
     { name: "Disguise", ability: "Cha", ranks: 0, abilityMod: 2, misc: 0, total: 2 },
-    { name: "Escape Artist*", ability: "Dex", ranks: 0, abilityMod: 0, misc: -3, total: -3 },
+    { name: "Escape Artist*", ability: "Dex", ranks: 0, abilityMod: 0, misc: 0, total: 0 },
     { name: "Forgery", ability: "Int", ranks: 0, abilityMod: 2, misc: 0, total: 2 },
     { name: "Gather Information", ability: "Cha", ranks: 0, abilityMod: 2, misc: 0, total: 2 },
     { name: "Handle Animal", ability: "Cha", ranks: 4, abilityMod: 2, misc: 0, total: 6 },
     { name: "Heal", ability: "Wis", ranks: 2, abilityMod: 4, misc: 0, total: 6 },
-    { name: "Hide*", ability: "Dex", ranks: 0, abilityMod: 0, misc: -3, total: -3 },
+    { name: "Hide*", ability: "Dex", ranks: 0, abilityMod: 0, misc: 0, total: 0 },
     { name: "Intimidate", ability: "Cha", ranks: 0, abilityMod: 2, misc: 0, total: 2 },
-    { name: "Jump*", ability: "Str", ranks: 0, abilityMod: -1, misc: -9, total: -10 },
+    { name: "Jump*", ability: "Str", ranks: 0, abilityMod: -1, misc: 0, total: -1 },
     { name: "Knowledge (Arcana)", ability: "Int", ranks: 1, abilityMod: 2, misc: 0, total: 3 },
     { name: "Knowledge (Dungeoneering)", ability: "Int", ranks: 1, abilityMod: 2, misc: 0, total: 3 },
     { name: "Knowledge (History)", ability: "Int", ranks: 1, abilityMod: 2, misc: 0, total: 3 },
@@ -184,7 +184,7 @@ const CHARACTER = {
     { name: "Knowledge (Psionics)", ability: "Int", ranks: 1, abilityMod: 2, misc: 0, total: 3 },
     { name: "Knowledge (The Planes)", ability: "Int", ranks: 1, abilityMod: 2, misc: 0, total: 3 },
     { name: "Listen", ability: "Wis", ranks: 2, abilityMod: 4, misc: 2, total: 8 },
-    { name: "Move Silently*", ability: "Dex", ranks: 0, abilityMod: 0, misc: -3, total: -3 },
+    { name: "Move Silently*", ability: "Dex", ranks: 0, abilityMod: 0, misc: 0, total: 0 },
     { name: "Perform (Act)", ability: "Cha", ranks: 0, abilityMod: 2, misc: 0, total: 2 },
     { name: "Perform (Comedy)", ability: "Cha", ranks: 0, abilityMod: 2, misc: 0, total: 2 },
     { name: "Perform (Dance)", ability: "Cha", ranks: 0, abilityMod: 2, misc: 0, total: 2 },
@@ -204,7 +204,7 @@ const CHARACTER = {
     { name: "Spellcraft", ability: "Int", ranks: 13, abilityMod: 2, misc: 0, total: 15 },
     { name: "Spot", ability: "Wis", ranks: 9, abilityMod: 4, misc: 2, total: 15 },
     { name: "Survival", ability: "Wis", ranks: 10, abilityMod: 4, misc: 2, total: 16 },
-    { name: "Swim*", ability: "Str", ranks: 3, abilityMod: -1, misc: -6, total: -4 },
+    { name: "Swim*", ability: "Str", ranks: 3, abilityMod: -1, misc: 0, total: 2 },
     { name: "Use Magic Device", ability: "Cha", ranks: 2, abilityMod: 2, misc: 0, total: 4 },
     { name: "Use Rope", ability: "Dex", ranks: 0, abilityMod: 0, misc: 0, total: 0 },
   ],

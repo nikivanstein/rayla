@@ -80,13 +80,14 @@ const SPELL_DATA = {
     label: "Level 3",
     perDay: 5,
     prepared: [
-      { name: "Blindsight", qty: 1, dc: 17, save: "Will Neg. (Harmless)", cast: "1 Action", duration: "1 min/lvl", range: "Touch", effect: "Grants blindsight (sense nearby creatures without needing sight) out to 30 ft. (PGtoFR100)" },
+      { name: "Crumble", qty: 1, dc: 17, save: "Fortitude half (object)", cast: "1 Action", duration: "Instant.", range: "Medium (100 ft. + 10 ft./level)", effect: "Eroding up to a huge-size object (stone, wood, metal, construct), aging it several centuries in a few seconds.(10d8 erosion damage) (SC56)" },
       { name: "Call Lightning", qty: 1, dc: 17, save: "Reflex Half", cast: "1 Round", duration: "1 min/lvl", range: "Medium (100+10/lvl)", effect: "Calls a 5-ft.-wide lightning bolt from the sky once/round, 3d6 electricity damage; can repeat each round for the duration. (PH207)" },
       { name: "Poison", qty: 1, dc: 17, save: "Fortitude Neg.; see text", cast: "1 Action", duration: "Instant.; see text", range: "Touch", effect: "Touch attack forces a Fortitude save or 1d10 Con damage now, with a second dose 1 minute later. (PH262)" },
       { name: "Stone Shape", qty: 1, dc: 17, save: "None", cast: "1 Action", duration: "Instantaneous", range: "Touch", effect: "Sculpts one piece of stone (up to 10 cu.ft. + 1 cu.ft./lvl) into virtually any shape. (PH284)" },
       { name: "Neutralize Poison", qty: 1, dc: 18, save: "Will Neg. (Harmless, Object)", cast: "1 Action", duration: "10 min/lvl", range: "Touch", effect: "Detoxifies venom in or on the target; a poisoned creature suffers no further effects and is immune to poison for the duration. (PH257)" },
     ],
     alternatives: [
+      { name: "Blindsight", dc: 17, save: "Will Neg. (Harmless)", cast: "1 Action", duration: "1 min/lvl", range: "Touch", effect: "Grants blindsight (sense nearby creatures without needing sight) out to 30 ft. (PGtoFR100)" },
       { name: "Venomfire", dc: 17, save: "Fortitude Neg. (Harmless)", cast: "1 Action", duration: "1 hour/lvl", range: "Touch", effect: "Makes the subject's venom caustic, adding 1d6 acid damage per caster level to its next poison attack. (WotC-SK158)" },
       { name: "Protection from Energy", dc: 17, save: "Fort. Neg. (Harmless)", cast: "1 Action", duration: "10 min/lvl (D)", range: "Touch", effect: "Absorbs the next 12 points/caster level (max 120) of damage from one chosen energy type. (PH266)" },
       { name: "Spike Growth", dc: 17, save: "Reflex Partial", cast: "1 Action", duration: "1 hour/lvl (D)", range: "Medium (100+10/lvl)", effect: "Hides spikes in the ground over a large area; anyone walking through takes 1d4 damage per 5 ft. moved and risks a lasting speed penalty. (PH283)" },
