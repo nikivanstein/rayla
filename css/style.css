@@ -302,22 +302,67 @@ main {
   gap: 40px;
 }
 .hero__inner { max-width: 720px; flex: 1 1 auto; }
+
+.hero__portrait-wrap { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .hero__portrait {
-  flex: 0 0 auto;
+  position: relative;
   width: 220px;
   height: 220px;
   border-radius: 50%;
   overflow: hidden;
   border: 3px solid var(--gold);
   box-shadow: 0 0 0 6px var(--surface), 0 8px 28px rgba(0, 0, 0, 0.4);
+  padding: 0;
+  background: none;
+  font: inherit;
+  display: block;
 }
-.hero__portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hero__portrait img { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity 0.2s ease; }
+.hero__portrait img.is-fading { opacity: 0; }
+
+/* Only a portrait with alternates to cycle through gets the pointer,
+   hover lift, and "click for another look" hint — with just one entry
+   in PORTRAIT_DATA it renders as a plain, inert image. */
+.hero__portrait.is-cyclable { cursor: pointer; transition: transform 0.15s; }
+.hero__portrait.is-cyclable:hover { transform: scale(1.03); }
+.hero__portrait.is-cyclable:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+.hero__portrait-hint {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 5px 0 6px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 10.5px;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.hero__portrait.is-cyclable:hover .hero__portrait-hint,
+.hero__portrait.is-cyclable:focus-visible .hero__portrait-hint {
+  opacity: 1;
+}
+
+.hero__portrait-dots { display: flex; gap: 6px; }
+.hero__portrait-dot {
+  width: 8px; height: 8px; padding: 0; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--surface-2);
+  cursor: pointer;
+}
+.hero__portrait-dot.is-active { background: var(--gold); border-color: var(--gold); }
+
+.hero__portrait-caption {
+  margin: 0; font-size: 11.5px; color: var(--text-faint);
+  text-align: center; max-width: 220px;
+}
+.hero__portrait-caption:empty { display: none; }
+
 @media (max-width: 760px) {
   .hero__top { flex-direction: column-reverse; align-items: center; gap: 24px; text-align: center; }
   .hero__portrait { width: 160px; height: 160px; }
   .hero__facts { justify-items: center; }
 }
 [data-theme="eink"] .hero__portrait { box-shadow: none; border-width: 2px; }
+[data-theme="eink"] .hero__portrait-dot.is-active { background: #000000; border-color: #000000; }
 .hero__eyebrow {
   font-size: 13px;
   color: var(--gold);
@@ -1128,6 +1173,7 @@ details[open] > .ws-card__summary .ws-card__chevron { transform: rotate(90deg); 
   .side-nav, .nav-toggle, .nav-scrim, .skip-link,
   .section--session,
   .prep-btn, .slot-reset, .alt-toggle-wrap, .layout-toggle,
+  .hero__portrait-hint, .hero__portrait-dots, .hero__portrait-caption,
   details.reveal {
     display: none !important;
   }

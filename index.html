@@ -78,8 +78,13 @@
           <div><dt>Languages</dt><dd id="f-languages"></dd></div>
         </dl>
       </div>
-      <div class="hero__portrait">
-        <img src="img/rayla-portrait.jpg" width="900" height="900" alt="Rayla, a star elf druid in her star-embroidered robe, raising a hand toward a glowing frog and drifting leaves in a mossy forest, beside her lion companion Rayla's Bait">
+      <div class="hero__portrait-wrap" id="portraitWrap">
+        <button type="button" class="hero__portrait" id="portraitBtn">
+          <img id="portraitImg" src="img/rayla-portrait.jpg" width="900" height="900" alt="Rayla, a star elf druid in her star-embroidered robe, raising a hand toward a glowing frog and drifting leaves in a mossy forest, beside her lion companion Rayla's Bait">
+          <span class="hero__portrait-hint" aria-hidden="true">Click for another look</span>
+        </button>
+        <div class="hero__portrait-dots" id="portraitDots"></div>
+        <p class="hero__portrait-caption" id="portraitCaption"></p>
       </div>
     </div>
     <div class="hero__vitals" id="vitalsStrip"></div>
@@ -209,6 +214,7 @@
 
 </main>
 
+<script src="data/portraits.js"></script>
 <script src="data/character.js"></script>
 <script src="data/spells.js"></script>
 <script src="data/wildshape.js"></script>
