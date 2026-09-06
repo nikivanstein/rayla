@@ -5,7 +5,7 @@
  * copying an existing object and filling in its fields \u2014 it will show
  * up on the page automatically as a new collapsible card.
  *
- * Optional illustration: set `image: "img/<file>.png"` on any creature to
+ * Optional illustration: set `image: "img/wildshapes/<file>.png"` on any creature to
  * show a full-width banner above its stat block, in both the list layout
  * and the compact Card layout (toggle in the section head) \u2014 same
  * mechanism as SUMMON_DATA. Missing file just skips the banner.
@@ -27,6 +27,7 @@ const WILDSHAPE_DATA = [
     specialQualities: "Low-light vision",
     feats: "Alertness, Flyby Attack, Hover, Skill Focus (Spot), Weapon Finesse",
     skills: "Listen +12, Spot +16 (+12 racial bonus on Spot checks made in daylight)",
+    image: "img/wildshapes/eagle.png",
     notes: "Like all birds of prey, the legendary eagle is a carnivore that hunts other birds, small reptiles, snakes, and mammals, attacking from the air with claws and beak.",
     source: "Monster Manual II, p.136",
   },
@@ -49,6 +50,7 @@ const WILDSHAPE_DATA = [
     abilitiesText: [
       { name: "Rend (Ex)", desc: "If a legendary ape hits with both claws, it latches onto the opponent's body and tears the flesh for an additional 2d8+15 points of damage." },
     ],
+    image: "img/wildshapes/ape.png",
     notes: "Legendary apes are aggressive and territorial. They drop on opponents from trees to rend flesh with their powerful claws and teeth.",
     source: "Monster Manual II, p.136",
   },
@@ -71,6 +73,7 @@ const WILDSHAPE_DATA = [
     abilitiesText: [
       { name: "Improved Grab (Ex)", desc: "If a legendary bear hits a Medium or smaller opponent with a claw attack, it can start a grapple as a free action without provoking an attack of opportunity (grapple bonus +32). It can hold the opponent in its claw (-20 penalty on the grapple check, but the bear isn't considered grappled) and deals automatic claw damage each round the hold is maintained." },
     ],
+    image: "img/wildshapes/bear.jpg",
     notes: "A tank of a wild shape option \u2014 huge hit points, a fearsome full attack, and Cleave/Great Cleave for mowing through weaker foes.",
     source: "Monster Manual II, p.136 (also reprinted in the Epic Level Handbook)",
   },
@@ -94,6 +97,7 @@ const WILDSHAPE_DATA = [
       { name: "Improved Grab / Constrict (Ex)", desc: "A hit with the bite lets the snake start a grapple as a free action (grapple bonus +24); if it gets a hold it can constrict the same round for an extra 1d8+12 bludgeoning damage. It can also just use its coils to hold an opponent (-20 penalty on the grapple check, not considered grappled itself)." },
       { name: "Poison (Ex)", desc: "Injury, Fortitude DC 25 negates. Initial and secondary damage are both 1d8 Constitution damage." },
     ],
+    image: "img/wildshapes/snake.png",
     notes: "A strong grappler/DPS pick with a nasty Con-drain poison \u2014 good against single tough targets.",
     source: "Monster Manual II, p.136",
   },
@@ -113,6 +117,7 @@ const WILDSHAPE_DATA = [
     feats: "Alertness (+2 spot and listen), Hover, Improved Initiative (+4 Init), Iron Will (+2 will save), Weapon Focus (bite)",
     skills: "Class skills: Concentration, Diplomacy, Escape Artist, Intimidate, Knowledge (any), Listen, Search, Sense Motive, Spot, Use Magic Device, plus Bluff, Disguise and Jump for silver dragons",
     breathWeapon: "30-ft. cone, once every 1d4 rounds \u2014 the dragon picks one of two effects each time it breathes: a cone of cold dealing 6d8 points of cold damage (Reflex DC 18 half), or a cone of paralyzing gas that paralyzes creatures for 1d6+3 rounds unless they succeed on a Fortitude save (DC 18).",
+    image: "img/wildshapes/young-silver-dragon.png",
     notes: "Dragon Wild Shape (Draconomicon, p.105) grants all the extraordinary and supernatural abilities of the dragon form taken, but not its spells or spell-like abilities. Alternate Form still lets this shape masquerade as a Medium or smaller animal/humanoid \u2014 handy for scouting.",
     source: "Monster Manual (v.3.5), Silver Dragon entry",
   },
@@ -132,7 +137,8 @@ const WILDSHAPE_DATA = [
     feats: "Alertness (+2 spot and listen), Hover, Improved Initiative (+4 Init), Iron Will (+2 will save), Weapon Focus (bite)",
     skills: "Class skills: Concentration, Diplomacy, Escape Artist, Intimidate, Knowledge (any), Listen, Search, Sense Motive, Spot, Use Magic Device, plus Hide, Move Silently and Swim for black dragons",
     breathWeapon: "80-ft. line, once every 1d4 rounds \u2014 a line of acid dealing 8d4 points of acid damage (Reflex DC 18 half).",
-    notes: "Can breathe and fight indefinitely underwater, and moves through bog/quicksand at full speed. A good pick for swamp, coastal or underwater encounters. ",
+    notes: "Can breathe and fight indefinitely underwater, and moves through bog/quicksand at full speed. A good pick for swamp, coastal or underwater encounters.",
+    image: "img/wildshapes/juvenile-black-dragon.png",
     source: "Monster Manual (v.3.5), Black Dragon entry",
   },
   {
@@ -151,6 +157,7 @@ const WILDSHAPE_DATA = [
     feats: "Alertness (+2 spot and listen), Hover, Improved Initiative (+4 Init), Iron Will (+2 will save), Weapon Focus (bite)",
     skills: "Class skills: Concentration, Diplomacy, Escape Artist, Intimidate, Knowledge (any), Listen, Search, Sense Motive, Spot, Use Magic Device, plus Jump, Move Silently and Swim for white dragons",
     breathWeapon: "30-ft. cone, once every 1d4 rounds \u2014 a cone of cold dealing 8d6 points of cold damage (Reflex DC 18 half).",
+    image: "img/wildshapes/juvenile-white-dragon.png",
     notes: "The bruiser of the lesser chromatics is actually the weakest true dragon overall, but it's also the fastest to reach these numbers (fully grown into cold immunity and a 30-ft cold cone by only 12 HD) and it comes with burrow speed and icewalking for arctic terrain no other option here offers.",
     source: "Monster Manual (v.3.5), White Dragon entry",
   },
@@ -172,6 +179,7 @@ const WILDSHAPE_DATA = [
     skills: "Class skills: Concentration, Diplomacy, Escape Artist, Intimidate, Knowledge (any), Listen, Search, Sense Motive, Spot, Use Magic Device, plus Bluff, Hide and Spellcraft for blue dragons",
     breathWeapon: "80-ft. line, once every 1d4 rounds \u2014 a line of lightning dealing 10d6 points of electricity damage (Reflex DC 22 half).",
     notes: "The biggest, hardest-hitting option here.",
+    image: "img/wildshapes/young-blue-dragon.png",
     source: "Monster Manual (v.3.5), Blue Dragon entry",
   },
   {
@@ -190,6 +198,7 @@ const WILDSHAPE_DATA = [
     skills: "Class skills: Concentration, Diplomacy, Escape Artist, Intimidate, Knowledge (any), Listen, Search, Sense Motive, Spot, Use Magic Device, plus Disguise, Heal and Swim for gold dragons",
     breathWeapon: "40-ft. cone, once every 1d4 rounds \u2014 the dragon picks one of two effects each time it breathes: a cone of fire dealing 6d10 points of fire damage (Reflex DC 20 half), or a cone of weakening gas that deals 3 points of temporary Strength damage unless the target succeeds on a Fortitude save (DC 20).",
     notes: "",
+    image: "img/wildshapes/young-gold-dragon.png",
     source: "Reconstructed from Monster Manual (v.3.5) Gold Dragon age-category data",
   },
 ];
