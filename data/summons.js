@@ -30,6 +30,12 @@
  * All base numbers are drawn from 3.5 SRD / Monster Manual / Monster
  * Manual III / Fiend Folio stat blocks; sourcing confidence is noted per
  * creature where a less common sourcebook made cross-checking harder.
+ *
+ * Optional illustration: set `image: "img/summons/summons/<file>.jpg"` on any
+ * creature to show a full-width banner above its stat block, in both the
+ * list layout and the compact Card layout (toggle in the section head).
+ * There's nothing to wire up beyond adding the field — if the file is
+ * missing the banner is simply skipped, no broken-image icon.
  */
 
 const SUMMON_DATA = {
@@ -53,6 +59,7 @@ const SUMMON_DATA = {
         abilitiesText: [
           { name: "Improved Grab (Ex)", desc: "If the crocodile hits with its bite, it can attempt to start a grapple as a free action without provoking an attack of opportunity." },
         ],
+        image: "img/summons/crocodile.jpg",
         notes: "Only has one attack option (bite or tail slap, not both), so it uses the solo-weapon 1.5x Str bonus — decent single-target damage and grapple control near water.",
         source: "Monster Manual (SRD)",
       },
@@ -69,6 +76,7 @@ const SUMMON_DATA = {
         specialQualities: "Darkvision 60 ft., low-light vision, scent",
         feats: "Dodge, Wingover",
         skills: "Listen +4, Spot +8",
+        image: "img/summons/hippogriff.jpg",
         notes: "The only flier at this level — good for aerial scouting or dropping a caster on top of a target, though it's fragile once it's in melee.",
         source: "Monster Manual (SRD)",
       },
@@ -94,6 +102,7 @@ const SUMMON_DATA = {
         abilitiesText: [
           { name: "Trip (Ex)", desc: "A dire wolf that hits with its bite attack can attempt to trip the opponent (+9 check modifier including size) as a free action without needing a trip attempt in return." },
         ],
+        image: "img/summons/dire-wolf.jpg",
         notes: "Single natural weapon uses the solo-weapon 1.5x Str bonus, so the bite hits hard for its level; trip is great for keeping a melee threat on the ground.",
         source: "Monster Manual (SRD)",
       },
@@ -120,6 +129,7 @@ const SUMMON_DATA = {
         abilitiesText: [
           { name: "Improved Grab (Ex)", desc: "If the bear hits with a claw attack, it can attempt to start a grapple as a free action without provoking an attack of opportunity." },
         ],
+        image: "img/summons/brown-bear.jpg",
         notes: "Straightforward high-damage melee brute with a claw/claw/bite routine and grapple follow-up.",
         source: "Monster Manual (SRD)",
       },
@@ -139,6 +149,7 @@ const SUMMON_DATA = {
         abilitiesText: [
           { name: "Improved Grab (Ex)", desc: "If the crocodile hits with its bite, it can attempt to start a grapple as a free action without provoking an attack of opportunity." },
         ],
+        image: "img/summons/crocodile.jpg",
         notes: "The scaled-up crocodile — single solo-weapon attack, huge reach, and an excellent grapple option in or near water.",
         source: "Monster Manual (SRD)",
       },
@@ -161,6 +172,7 @@ const SUMMON_DATA = {
           { name: "Rake (Ex)", desc: "Two rake attacks at +11 melee, damage 1d8+4, usable only when the tiger has pounced or is grappling." },
           { name: "Improved Grab (Ex)", desc: "If the tiger hits with both claw attacks, it can attempt to start a grapple as a free action without provoking an attack of opportunity." },
         ],
+        image: "img/summons/tiger.jpg",
         notes: "Pounce plus rake makes this the hardest single-round burst option at this level, especially against a target caught flat-footed by a charge.",
         source: "Monster Manual (SRD)",
       },
@@ -181,6 +193,7 @@ const SUMMON_DATA = {
           { name: "Spell-Like Abilities", desc: "At will—detect evil. 1/day—greater teleport (self plus 500 lb. of objects only, within its home forest). By horn touch, 3/day—cure light wounds, 1/day—cure moderate wounds and neutralize poison (DC 21). Caster level 5th (8th for neutralize poison). Save DCs are Charisma-based and unaffected by the Str/Con buff." },
           { name: "Magic Circle against Evil (Su)", desc: "A unicorn continuously radiates a magic circle against evil effect (as the spell, CL 4th)." },
         ],
+        image: "img/summons/unicorn.jpg",
         notes: "Its horn's exact damage bonus doesn't decompose cleanly against the printed Strength score (the SRD write-up implies a small inherent bonus beyond raw Str), so the printed delta was applied directly to the base damage rather than recomputed from scratch — treat the +10 as a close approximation. Bring it along for the on-demand healing and the poison/charm immunity aura as much as for the horn.",
         source: "Monster Manual (SRD)",
       },
@@ -202,6 +215,7 @@ const SUMMON_DATA = {
           { name: "Consume Intelligence (Su)", desc: "A creature held by the creeper's vines takes 1d4 Intelligence damage each round. A creature reduced to Intelligence 0 must succeed on a DC 20 Fortitude save (Con-based, raised from DC 18) or rise as a yellow musk zombie under the creeper's control." },
           { name: "Musk/Pollen Spray", desc: "As a ranged touch attack (about 30 ft.), the creeper can spray a cloud of pollen; a creature that fails a Will save (roughly DC 14, Charisma-based and unaffected by the Str/Con buff) is compelled to approach the creeper." },
         ],
+        image: "img/summons/creeper.jpg",
         notes: "An unusual pick: it can't move, but 6 attacks per round backed by Weapon Finesse (so to-hit rides on its high Dex, not the buffed Str) makes it a nasty ambush option if you can summon it adjacent to a target and hold them with Consume Intelligence.",
         source: "Fiend Folio (community-compiled reproduction — the exact pollen DC and a couple of skill/organization details weren't independently verified; treat as approximate).",
       },
@@ -209,7 +223,7 @@ const SUMMON_DATA = {
   },
   5: {
     label: "Summon Nature's Ally V",
-    note: "This is where elementals come online — Earth and Fire make good tanks/DR-bypassers, Air is your best mobile skirmisher or anti-swarm option, and Water is a strong all-rounder near any body of water (see the Rashemi Elemental Summoning feat and Call Lightning/Whirlwind synergy notes below). Rhinoceros is a straightforward high-damage charger. This level also lets you summon d3 Brown Bears, d3 Giant Crocodiles, or d3 Tigers instead — see their cards under SNA IV.",
+    note: "This is where elementals come online — Earth and Fire make good tanks/DR-bypassers, Air is your best mobile skirmisher or anti-swarm option, and Water is a strong all-rounder near any body of water. Rhinoceros is a straightforward high-damage charger. This level also lets you summon d3 Brown Bears, d3 Giant Crocodiles, or d3 Tigers instead — see their cards under SNA IV.",
     creatures: [
       {
         name: "Large Air Elemental",
@@ -229,6 +243,7 @@ const SUMMON_DATA = {
           { name: "Air Mastery (Ex)", desc: "Airborne creatures take a –1 penalty on attack and damage rolls against the elemental." },
           { name: "Whirlwind (Su)", desc: "Once per round the elemental can transform into a whirlwind for up to 1 round per HD; anything caught inside takes 2d6 damage per round and must succeed on a DC 18 Reflex save (Strength-based, raised from DC 16) or be picked up." },
         ],
+        image: "img/summons/air-lg.jpg",
         notes: "Its slam attack uses Weapon Finesse, so the +2 to-hit from Augment Summoning doesn't apply there — only the damage and the whirlwind DC benefit. Best used for mobility, flanking, and shredding groups of weaker enemies with the whirlwind.",
         source: "Monster Manual (SRD)",
       },
@@ -250,6 +265,7 @@ const SUMMON_DATA = {
           { name: "Earth Mastery (Ex)", desc: "The elemental gets a +1 bonus on attack and damage rolls if both it and its foe are touching the ground; if the foe is airborne or waterborne, the elemental takes a –4 penalty instead." },
           { name: "Push (Ex)", desc: "An earth elemental can start a bull rush as part of a normal melee attack (no attack of opportunity), using earth mastery's attack modifiers, and doesn't need to move with the target." },
         ],
+        image: "img/summons/earth-lg.jpg",
         notes: "The best pure tank of the set — heavy natural armor, huge Strength-based damage, and earth glide lets it flank or ambush through solid stone. Vulnerable if you're forced off the ground.",
         source: "Monster Manual (SRD)",
       },
@@ -270,6 +286,7 @@ const SUMMON_DATA = {
         abilitiesText: [
           { name: "Burn (Ex)", desc: "Anything hit by a slam must succeed on a DC 19 Reflex save (Constitution-based, raised from DC 17) or catch fire, taking 2d6 fire damage per round until the flames are extinguished (a full-round action, DC 15 Reflex to put out, or by submersion/magic)." },
         ],
+        image: "img/summons/fire-lg.jpg",
         notes: "Its slam uses Weapon Finesse, so the to-hit is unaffected by the Str buff, but damage and the Burn DC both go up. Excellent DR-bypasser (2d6 fire on top of physical damage) and a good tank against anything that isn't fire-immune.",
         source: "Monster Manual (SRD)",
       },
@@ -292,6 +309,7 @@ const SUMMON_DATA = {
           { name: "Drench (Ex)", desc: "The elemental's touch extinguishes torches, campfires, and other unprotected flames of nonmagical origin, and can automatically dispel or douse magical fire effects it touches." },
           { name: "Vortex (Su)", desc: "Once every 10 minutes the elemental can transform into a whirlpool for up to 1 round per HD; a creature that fails a DC 21 Reflex save (Strength-based, raised from DC 19) is sucked in and takes damage each round it stays trapped." },
         ],
+        image: "img/summons/water-lg.jpg",
         notes: "Strongest overall in or near water — solid melee damage, control via vortex, and can put out enemy fire effects on contact.",
         source: "Monster Manual (SRD)",
       },
@@ -311,6 +329,7 @@ const SUMMON_DATA = {
         abilitiesText: [
           { name: "Powerful Charge (Ex)", desc: "A rhinoceros that charges deals double its normal gore damage (twice the solo-weapon Strength bonus) instead of the usual x1.5 for a charge." },
         ],
+        image: "img/summons/rhinoceros.jpg",
         notes: "Single natural weapon gets the solo-weapon 1.5x Str bonus, and Powerful Charge doubles that again — an absurd one-shot nova if you can set up a charge lane.",
         source: "Monster Manual (SRD)",
       },
@@ -338,6 +357,7 @@ const SUMMON_DATA = {
           { name: "Air Mastery (Ex)", desc: "Airborne creatures take a –1 penalty on attack and damage rolls against the elemental." },
           { name: "Whirlwind (Su)", desc: "As the Large elemental's whirlwind, but deals 2d8 damage per round and the save is DC 24 (Strength-based, raised from DC 22)." },
         ],
+        image: "img/summons/air-huge.jpg",
         notes: "Slam uses Weapon Finesse, so to-hit doesn't benefit from the buff — damage and the whirlwind DC do. The best mobile skirmisher/anti-swarm option at this level.",
         source: "Monster Manual (SRD)",
       },
@@ -359,6 +379,7 @@ const SUMMON_DATA = {
           { name: "Earth Mastery (Ex)", desc: "+1 on attack/damage if both combatants touch the ground; –4 penalty if the foe is airborne or waterborne." },
           { name: "Push (Ex)", desc: "Can bull rush as part of a normal attack, no attack of opportunity, using earth mastery's modifiers." },
         ],
+        image: "img/summons/earth-huge.jpg",
         notes: "The heaviest hitter and tank in the set — massive Strength, Power Attack, and Awesome Blow can knock enemies prone or send them flying.",
         source: "Monster Manual (SRD)",
       },
@@ -379,6 +400,7 @@ const SUMMON_DATA = {
         abilitiesText: [
           { name: "Burn (Ex)", desc: "Anything hit by a slam must succeed on a DC 24 Reflex save (Constitution-based, raised from DC 22) or catch fire for 2d8 fire damage per round until extinguished." },
         ],
+        image: "img/summons/fire-huge.jpg",
         notes: "Slam uses Weapon Finesse (no to-hit benefit from the buff), but the fire damage and Burn DC scale up with it. A strong DR-bypasser against anything not fire-immune.",
         source: "Monster Manual (SRD)",
       },
@@ -401,6 +423,7 @@ const SUMMON_DATA = {
           { name: "Drench (Ex)", desc: "Extinguishes nonmagical fire on touch and can dispel/douse magical fire effects." },
           { name: "Vortex (Su)", desc: "As the Large elemental's vortex, DC 27 Reflex (Strength-based, raised from DC 25) or be pulled in." },
         ],
+        image: "img/summons/water-huge.jpg",
         notes: "The strongest all-around pick near water — heavy damage plus battlefield control via vortex.",
         source: "Monster Manual (SRD)",
       },
@@ -422,6 +445,7 @@ const SUMMON_DATA = {
           { name: "Shock (Su)", desc: "Once per round as a free action, the elemental can deliver a nonlethal electrical shock to one target within 10 ft.; DC 20 Fortitude save (Constitution-based, raised from DC 18) or take the damage." },
           { name: "Thunder and Lightning (Su)", desc: "Once per minute as a full-round action: a thunderclap deals 4d6 sonic damage (DC 20 Fortitude half) to everything within 60 ft., and simultaneously a 120-ft. line of lightning deals 8d6 electricity damage (DC 20 Reflex half). Both DCs are Constitution-based, raised from DC 18." },
         ],
+        image: "img/summons/storm-lg.jpg",
         notes: "Its first-turn burst (Thunder and Lightning) is a genuine area nuke on top of a normal Air Elemental's stat line — immune to electricity/sonic itself, so it can stand in its own storm. Speaks Auran.",
         source: "Monster Manual III (community-compiled reproduction — verify exact damage dice and DCs against the original text if precision matters).",
       },
@@ -442,6 +466,7 @@ const SUMMON_DATA = {
         abilitiesText: [
           { name: "Improved Grab (Ex)", desc: "If the bear hits with a claw attack, it can attempt to start a grapple as a free action without provoking an attack of opportunity." },
         ],
+        image: "img/summons/dire-bear.jpg",
         notes: "Enormous Strength and a claw/claw/bite routine make this one of the hardest-hitting straightforward melee options at this level.",
         source: "Monster Manual (SRD)",
       },
@@ -462,6 +487,7 @@ const SUMMON_DATA = {
         abilitiesText: [
           { name: "Trample (Ex)", desc: "As a full-round action, the elephant can move through squares occupied by Large or smaller creatures, dealing 2d8+18 damage; a trampled creature can attempt an attack of opportunity at a –4 penalty, or a DC 27 Reflex save (Strength-based, raised from DC 25) to take half damage." },
         ],
+        image: "img/summons/elephant.jpg",
         notes: "Huge, tanky, and its trample lets it plow through weaker enemies. Can alternate a big single gore hit with the trample-and-stamp routine.",
         source: "Monster Manual (SRD)",
       },
@@ -482,6 +508,7 @@ const SUMMON_DATA = {
         abilitiesText: [
           { name: "Spell-Like Abilities", desc: "At will—stone tell, teleport (self only, within its home mountain). 3/day—charm monster, soften earth and stone, spike stones, stone shape, transmute mud to rock, transmute rock to mud. 1/day—earthquake, move earth. Caster level 14th; save DC = 13 + spell level, Charisma-based and unaffected by the Str/Con buff." },
         ],
+        image: "img/summons/oread.jpg",
         notes: "Not a damage dealer — bring it for terrain control (earthquake, transmute rock to mud/stone shape) and its at-will stone tell to interrogate or scout through stone.",
         source: "Fiend Folio (community-compiled reproduction — creature type and advancement/level adjustment weren't independently verified; treat as approximate).",
       },
@@ -501,6 +528,7 @@ const SUMMON_DATA = {
         abilitiesText: [
           { name: "Spell-Like Abilities", desc: "1/day each, caster level 8th—dancing lights, detect chaos, detect evil, detect good, detect law, detect thoughts (DC 15), dispel magic, entangle (DC 14), lesser confusion (DC 14), permanent image (DC 19, visual and auditory elements only). About 1 in 10 pixies can also use irresistible dance 1/day (no save). All DCs are Charisma-based and unaffected by the Str/Con buff." },
         ],
+        image: "img/summons/pixie.jpg",
         notes: "Weapon Finesse means its attack roll rides on Dex, not the buffed Str — damage on its short sword/longbow is essentially unchanged too, since base Str was so low. Use it for the constant greater invisibility, battlefield control spell-likes, and scouting, not for melee.",
         source: "Monster Manual (SRD)",
       },
@@ -528,6 +556,7 @@ const SUMMON_DATA = {
           { name: "Shock (Su)", desc: "Once per round as a free action, delivers a nonlethal electrical shock to one target within 10 ft.; DC 26 Fortitude save (Constitution-based, raised from DC 24) or take the damage." },
           { name: "Thunder and Lightning (Su)", desc: "Once per minute as a full-round action: a thunderclap and a 120-ft. lightning line, each save DC 26 (Constitution-based, raised from DC 24); exact damage dice at this size weren't independently confirmed — scale proportionally from the Large version (4d6 sonic / 8d6 electricity) if you need an exact number at the table." },
         ],
+        image: "img/summons/storm-huge.jpg",
         notes: "The area-burst option scaled all the way up — speaks Auran, immune to its own storm. Speed and a couple of the derived numbers (Fort/Ref/Will, feats, skills) were worked out from the Large Storm Elemental's progression rather than pulled from a directly-quoted MM3 page, so double check against the book if it matters for a given encounter.",
         source: "Monster Manual III (community-compiled reproduction, lower confidence than the core-MM elementals — verify against the original text before relying on exact numbers).",
       },
@@ -548,6 +577,7 @@ const SUMMON_DATA = {
           { name: "Sleep Arrow", desc: "In place of its normal short sword and longbow, this variant fires arrows coated in sleep poison. A creature struck takes no damage but must succeed on a DC 15 Fortitude save (fixed by the poison, not Strength/Constitution-based) or fall asleep as though by a sleep spell, regardless of Hit Dice." },
           { name: "Spell-Like Abilities", desc: "Same list as the base pixie (see SNA VI card): 1/day each, CL 8th—dancing lights, detect chaos/evil/good/law, detect thoughts (DC 15), dispel magic, entangle (DC 14), lesser confusion (DC 14), permanent image (DC 19). DCs are Charisma-based." },
         ],
+        image: "img/summons/pixie-2.png",
         notes: "A save-or-lose ranged attack that ignores Hit Dice is extremely strong against any single tough target, and it's still constantly invisible. The Str/Con buff barely matters here — the sleep arrow doesn't use Strength for damage and the save DC is fixed by the poison, not by an ability score.",
         source: "Monster Manual (SRD)",
       },

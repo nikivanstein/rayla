@@ -76,7 +76,8 @@
 [data-theme="eink"] .skip-link { color: #ffffff; }
 [data-theme="eink"] .slot-box.used::after { color: #ffffff; }
 [data-theme="eink"] table.spell-table th { color: #ffffff; }
-[data-theme="eink"] .ws-card { --ws-c: #000000 !important; }
+[data-theme="eink"] .ws-card-wrap { --ws-c: #000000 !important; --sc-c: #000000 !important; }
+[data-theme="eink"] .stat-card { --sc-c: #000000 !important; }
 
 * { box-sizing: border-box; }
 
@@ -211,6 +212,34 @@ code {
   background: #000000;
   color: #ffffff;
 }
+
+/* Compact inline toggle for a section head (e.g. Summon Nature's Ally's
+   list/card layout switch) — same visual language as .theme-toggle but
+   auto-width and sits inline instead of stacked full-width in the nav. */
+.layout-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 7px 14px;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.layout-toggle:hover { color: var(--text); border-color: var(--text-muted); }
+.layout-toggle__icon { font-size: 15px; line-height: 1; }
+.layout-toggle[aria-pressed="true"] {
+  background: var(--surface-2);
+  color: var(--accent-strong);
+  border-color: var(--accent);
+}
+[data-theme="eink"] .layout-toggle[aria-pressed="true"] { background: #000000; color: #ffffff; }
 
 .side-nav__foot {
   font-size: 11.5px;
@@ -893,12 +922,20 @@ table.spell-table.is-alt td { color: var(--text-faint); }
 
 .wildshape-list { display: grid; gap: 14px; }
 
-.ws-card {
+/* .ws-card-wrap owns the visible card box (border/radius/background) so
+   an optional illustration banner can sit flush above the collapsible
+   <details> and still read as one card. Wild Shape forms never set an
+   `image`, so they render exactly as before, just one wrapper div deeper. */
+.ws-card-wrap {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
   overflow: hidden;
 }
+.ws-card-banner { width: 100%; aspect-ratio: 21 / 6; overflow: hidden; background: var(--surface-2); }
+.ws-card-banner img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.ws-card { border: none; border-radius: 0; background: transparent; overflow: visible; }
 .ws-card__summary {
   list-style: none;
   cursor: pointer;
@@ -958,6 +995,93 @@ details[open] > .ws-card__summary .ws-card__chevron { transform: rotate(90deg); 
 .ws-source { font-size: 12px; color: var(--text-faint); margin-top: 8px; }
 
 /* ---------------------------------------------------------------------
+   Stat cards — compact index-card layout for Summon Nature's Ally,
+   toggled on via the "Card layout" button. Modeled on classic tabletop
+   monster reference cards: a colored name banner, a tight top-line of
+   AC/HP/Speed/CR, an ability-score strip, then dense label:value lines
+   instead of the roomier row/label layout .ws-card uses. Deliberately
+   small and information-dense — the whole point is fitting several to a
+   printed page instead of one long scrolling stat block per creature.
+   --------------------------------------------------------------------- */
+.stat-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.stat-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow: hidden;
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+.stat-card-banner { width: 100%; aspect-ratio: 16 / 9; overflow: hidden; background: var(--surface-2); }
+.stat-card-banner img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.stat-card__head {
+  background: var(--sc-c, var(--accent));
+  padding: 8px 14px;
+}
+.stat-card__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 18px;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  letter-spacing: 0.01em;
+}
+
+.stat-card__body { padding: 10px 14px 14px; }
+
+.stat-card__type {
+  margin: 0 0 8px;
+  font-style: italic;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.stat-card__topline {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px 10px;
+  padding: 8px 0;
+  border-top: 2px solid var(--sc-c, var(--accent));
+  border-bottom: 2px solid var(--sc-c, var(--accent));
+  margin-bottom: 10px;
+}
+.stat-card__topline div { display: flex; gap: 5px; }
+.stat-card__topline b { color: var(--sc-c, var(--accent-strong)); }
+
+.stat-card__abilities {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px;
+  margin-bottom: 10px;
+}
+.stat-card__abilities div {
+  text-align: center;
+  background: var(--surface-2);
+  border-radius: 5px;
+  padding: 4px 2px;
+}
+.stat-card__abilities .lab { font-size: 8.5px; color: var(--text-faint); letter-spacing: 0.04em; }
+.stat-card__abilities .val { font-family: var(--font-mono); font-weight: 700; font-size: 12px; color: var(--sc-c, var(--accent-strong)); }
+
+.stat-card__lines { margin: 0 0 4px; }
+.stat-card__lines p { margin: 0 0 4px; }
+.stat-card__lines b { color: var(--sc-c, var(--accent-strong)); }
+
+.stat-card__rule { border: none; border-top: 1px solid var(--sc-c, var(--border)); opacity: 0.5; margin: 8px 0; }
+
+.stat-card__notes {
+  font-size: 11px; color: var(--text-muted); font-style: italic;
+  border-top: 1px dashed var(--border); padding-top: 8px; margin-top: 8px;
+}
+.stat-card__source { font-size: 10.5px; color: var(--text-faint); margin-top: 6px; }
+
+/* ---------------------------------------------------------------------
    Footer
    --------------------------------------------------------------------- */
 
@@ -1003,7 +1127,7 @@ details[open] > .ws-card__summary .ws-card__chevron { transform: rotate(90deg); 
   /* Chrome / interactive-only UI has no place on paper. */
   .side-nav, .nav-toggle, .nav-scrim, .skip-link,
   .section--session,
-  .prep-btn, .slot-reset, .alt-toggle-wrap,
+  .prep-btn, .slot-reset, .alt-toggle-wrap, .layout-toggle,
   details.reveal {
     display: none !important;
   }
@@ -1100,9 +1224,30 @@ details[open] > .ws-card__summary .ws-card__chevron { transform: rotate(90deg); 
   /* All Wild Shape forms print open (see setupPrintExpand in app.js),
      not just the first one shown open on screen — the chevron has
      nothing left to toggle once everything's already expanded. */
-  .ws-card { break-inside: avoid; }
+  .ws-card-wrap { break-inside: avoid; }
   .ws-card__summary { cursor: default; }
   .ws-card__chevron { display: none; }
+  /* Illustration banners are a nice-to-have on screen but just burn ink
+     and page count on paper, so they're dropped entirely when printing —
+     for both the list layout and the compact Card layout below. */
+  .ws-card-banner, .stat-card-banner { display: none !important; }
+
+  /* Card layout (Summon Nature's Ally and Wild Shape both use it): this
+     is the whole point of the toggle, so pack it tight — two index-card-
+     sized columns per page instead of one wide card per row. */
+  .stat-card-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat-card { font-size: 9px; break-inside: avoid; }
+  .stat-card__head { padding: 5px 9px; }
+  .stat-card__name { font-size: 13px; }
+  .stat-card__body { padding: 6px 9px 8px; }
+  .stat-card__type { font-size: 8.5px; margin-bottom: 5px; }
+  .stat-card__topline { padding: 4px 0; margin-bottom: 6px; border-top-width: 1px; border-bottom-width: 1px; }
+  .stat-card__abilities { margin-bottom: 6px; }
+  .stat-card__abilities .lab { font-size: 6.5px; }
+  .stat-card__abilities .val { font-size: 9.5px; }
+  .stat-card__rule { margin: 5px 0; }
+  .stat-card__notes { font-size: 8px; padding-top: 5px; margin-top: 5px; }
+  .stat-card__source { font-size: 7.5px; margin-top: 4px; }
 
   a { color: inherit; text-decoration: none; }
 }
