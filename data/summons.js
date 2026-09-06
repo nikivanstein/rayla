@@ -577,7 +577,7 @@ const SUMMON_DATA = {
           { name: "Sleep Arrow", desc: "In place of its normal short sword and longbow, this variant fires arrows coated in sleep poison. A creature struck takes no damage but must succeed on a DC 15 Fortitude save (fixed by the poison, not Strength/Constitution-based) or fall asleep as though by a sleep spell, regardless of Hit Dice." },
           { name: "Spell-Like Abilities", desc: "Same list as the base pixie (see SNA VI card): 1/day each, CL 8th—dancing lights, detect chaos/evil/good/law, detect thoughts (DC 15), dispel magic, entangle (DC 14), lesser confusion (DC 14), permanent image (DC 19). DCs are Charisma-based." },
         ],
-        image: "img/summons/pixie-2.png",
+        image: "img/summons/pixie2.jpg",
         notes: "A save-or-lose ranged attack that ignores Hit Dice is extremely strong against any single tough target, and it's still constantly invisible. The Str/Con buff barely matters here — the sleep arrow doesn't use Strength for damage and the save DC is fixed by the poison, not by an ability score.",
         source: "Monster Manual (SRD)",
       },
