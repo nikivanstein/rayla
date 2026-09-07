@@ -50,6 +50,7 @@
   const SESSION_KEY = "rayla:session:v1";
   const SUMMON_LAYOUT_KEY = "rayla:summonLayout:v1";
   const WILDSHAPE_LAYOUT_KEY = "rayla:wildshapeLayout:v1";
+  const PORTRAIT_INDEX_KEY = "rayla:portraitIndex:v1";
 
   const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 
@@ -431,6 +432,63 @@
   /* ================================================================
    * HERO / OVERVIEW
    * ================================================================ */
+  /* ================================================================
+   * PORTRAIT (click to cycle through alternate looks)
+   * ================================================================ */
+  function renderPortrait() {
+    const btn = $("#portraitBtn");
+    const img = $("#portraitImg");
+    const dotsWrap = $("#portraitDots");
+    const caption = $("#portraitCaption");
+    if (!btn || !img || typeof PORTRAIT_DATA === "undefined" || !PORTRAIT_DATA.length) return;
+
+    const multi = PORTRAIT_DATA.length > 1;
+    btn.classList.toggle("is-cyclable", multi);
+
+    let index = clamp(readStore(PORTRAIT_INDEX_KEY, 0), 0, PORTRAIT_DATA.length - 1);
+
+    function show(next, opts) {
+      index = next;
+      const p = PORTRAIT_DATA[index];
+      const apply = () => {
+        img.src = p.src;
+        img.alt = p.alt;
+        img.classList.remove("is-fading");
+      };
+      if (opts && opts.animate) {
+        img.classList.add("is-fading");
+        setTimeout(apply, 180);
+      } else {
+        apply();
+      }
+      if (caption) caption.textContent = p.caption || "";
+      if (dotsWrap) {
+        Array.from(dotsWrap.children).forEach((d, i) => d.classList.toggle("is-active", i === index));
+      }
+      writeStore(PORTRAIT_INDEX_KEY, index);
+    }
+
+    if (multi) {
+      btn.setAttribute("aria-label", "Rayla's portrait — click to see another look");
+      if (dotsWrap) {
+        dotsWrap.innerHTML = "";
+        PORTRAIT_DATA.forEach((p, i) => {
+          dotsWrap.appendChild(el("button", {
+            type: "button",
+            class: "hero__portrait-dot",
+            "aria-label": `Show portrait ${i + 1}${p.caption ? ": " + p.caption : ""}`,
+            onclick: (e) => { e.stopPropagation(); show(i, { animate: true }); },
+          }));
+        });
+      }
+      btn.addEventListener("click", () => show((index + 1) % PORTRAIT_DATA.length, { animate: true }));
+    } else {
+      btn.removeAttribute("aria-label");
+    }
+
+    show(index);
+  }
+
   function renderOverview() {
     const c = CHARACTER;
     const session = readSession();
@@ -1142,6 +1200,7 @@
   function init() {
     setupTheme();
     renderSession();
+    renderPortrait();
     renderOverview();
     renderAbilities();
     renderCombat();
