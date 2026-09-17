@@ -898,6 +898,23 @@ table.spell-table tr td:first-child { color: var(--text); font-weight: 600; }
 table.spell-table td.num { font-family: var(--font-mono); text-align: center; }
 table.spell-table td.qty-multi { color: var(--gold); font-weight: 700; }
 
+/* Spell name links out to d20srd.org — same weight/color as the plain
+   text it replaces so the table doesn't look "linkified", just an
+   underline-on-hover and a small external-link mark as the only tells. */
+.spell-link {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px dotted var(--text-faint);
+}
+.spell-link:hover { color: var(--accent-strong); border-bottom-color: var(--accent-strong); }
+.spell-link::after {
+  content: " \2197";
+  font-size: 0.8em;
+  color: var(--text-faint);
+}
+.spell-link:hover::after { color: var(--accent-strong); }
+table.spell-table.is-alt .spell-link { color: inherit; }
+
 .spellstaff-field {
   display: flex;
   align-items: center;
@@ -1296,4 +1313,6 @@ details[open] > .ws-card__summary .ws-card__chevron { transform: rotate(90deg); 
   .stat-card__source { font-size: 7.5px; margin-top: 4px; }
 
   a { color: inherit; text-decoration: none; }
+  .spell-link { border-bottom: none; }
+  .spell-link::after { content: none; }
 }

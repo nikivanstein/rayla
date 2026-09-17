@@ -29,6 +29,31 @@
   const modStr = (n) => (n >= 0 ? `+${n}` : `${n}`);
 
   /* ---------------------------------------------------------------- *
+   * d20srd.org spell links — the site names each page by camelCasing
+   * the spell's title ("Acid Splash" -> acidSplash.htm, first word
+   * lowercased, every other word capitalized, all punctuation
+   * dropped). Our data lists "Greater"/"Lesser"/"Mass" variants suffixed
+   * with a comma ("Magic Fang, Greater") the way a spell list alphabetizes
+   * them, but d20srd's actual page title puts that word first
+   * ("Greater Magic Fang"), so that gets reordered before slugging.
+   * d20srd.org only mirrors the core Player's Handbook spell list, so a
+   * spell sourced from a supplement (Spell Compendium, Frostburn, etc.)
+   * will still get a link but may 404 — nothing in the data currently
+   * distinguishes "core" from "supplement" cleanly enough to skip those.
+   * ---------------------------------------------------------------- */
+  function d20srdSlug(name) {
+    let n = name.replace(/[‘’]/g, "'");
+    const variant = n.match(/^(.*),\s*(Mass|Greater|Lesser)$/i);
+    if (variant) n = `${variant[2]} ${variant[1]}`;
+    n = n.replace(/'/g, "");
+    const words = n.split(/[^A-Za-z0-9]+/).filter(Boolean);
+    return words
+      .map((w, i) => (i === 0 ? w.charAt(0).toLowerCase() + w.slice(1) : w.charAt(0).toUpperCase() + w.slice(1)))
+      .join("");
+  }
+  const d20srdUrl = (name) => `https://www.d20srd.org/srd/spells/${d20srdSlug(name)}.htm`;
+
+  /* ---------------------------------------------------------------- *
    * Local-storage helpers (small wrappers so a bad browser setting
    * never breaks rendering).
    * ---------------------------------------------------------------- */
@@ -801,8 +826,16 @@
           }),
         ]));
       }
+      const nameLink = el("a", {
+        href: d20srdUrl(s.name),
+        target: "_blank",
+        rel: "noopener noreferrer",
+        class: "spell-link",
+        title: `Look up ${s.name} on d20srd.org`,
+      }, [s.name]);
+
       tbody.appendChild(el("tr", {}, [
-        el("td", {}, [s.name, btn]),
+        el("td", {}, [nameLink, btn]),
         el("td", { class: "num" + (s.qty > 1 ? " qty-multi" : "") }, [isAlt ? "\u2014" : String(s.qty)]),
         el("td", { class: "num" + (wisDelta ? " is-buffed" : "") }, [
           String(dc),
