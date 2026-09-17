@@ -29,29 +29,44 @@
   const modStr = (n) => (n >= 0 ? `+${n}` : `${n}`);
 
   /* ---------------------------------------------------------------- *
-   * d20srd.org spell links — the site names each page by camelCasing
-   * the spell's title ("Acid Splash" -> acidSplash.htm, first word
-   * lowercased, every other word capitalized, all punctuation
-   * dropped). Our data lists "Greater"/"Lesser"/"Mass" variants suffixed
-   * with a comma ("Magic Fang, Greater") the way a spell list alphabetizes
-   * them, but d20srd's actual page title puts that word first
-   * ("Greater Magic Fang"), so that gets reordered before slugging.
-   * d20srd.org only mirrors the core Player's Handbook spell list, so a
-   * spell sourced from a supplement (Spell Compendium, Frostburn, etc.)
-   * will still get a link but may 404 — nothing in the data currently
-   * distinguishes "core" from "supplement" cleanly enough to skip those.
+   * Spell lookup links — d20srd.org for core Player's Handbook spells,
+   * a Google search as a fallback for everything else.
+   *
+   * d20srd.org names each page by camelCasing the spell's title ("Acid
+   * Splash" -> acidSplash.htm, first word lowercased, every other word
+   * capitalized, all punctuation dropped). Our data lists "Greater" /
+   * "Lesser" / "Mass" variants suffixed with a comma ("Magic Fang,
+   * Greater") the way a spell list alphabetizes them, but d20srd's
+   * actual page title puts that word first ("Greater Magic Fang"), so
+   * that gets reordered before slugging.
+   *
+   * d20srd.org only mirrors the core PHB spell list, so a spell sourced
+   * from a supplement would 404 there — every spell's `effect` string
+   * ends with its sourcebook in parentheses (e.g. "(PH215)" vs
+   * "(SpC43)"), so that citation decides which link a spell gets.
    * ---------------------------------------------------------------- */
-  function d20srdSlug(name) {
-    let n = name.replace(/[‘’]/g, "'");
+  function canonicalSpellName(name) {
+    const n = name.replace(/[‘’]/g, "'");
     const variant = n.match(/^(.*),\s*(Mass|Greater|Lesser)$/i);
-    if (variant) n = `${variant[2]} ${variant[1]}`;
-    n = n.replace(/'/g, "");
-    const words = n.split(/[^A-Za-z0-9]+/).filter(Boolean);
+    return variant ? `${variant[2]} ${variant[1]}` : n;
+  }
+  function d20srdSlug(name) {
+    const words = canonicalSpellName(name).replace(/'/g, "").split(/[^A-Za-z0-9]+/).filter(Boolean);
     return words
       .map((w, i) => (i === 0 ? w.charAt(0).toLowerCase() + w.slice(1) : w.charAt(0).toUpperCase() + w.slice(1)))
       .join("");
   }
   const d20srdUrl = (name) => `https://www.d20srd.org/srd/spells/${d20srdSlug(name)}.htm`;
+  const googleSpellSearchUrl = (name) => `https://www.google.com/search?q=${encodeURIComponent(`"${canonicalSpellName(name)}" D&D 3.5 spell`)}`;
+
+  function isCoreSourced(effect) {
+    const citation = (effect || "").match(/\(([^()]+)\)\s*$/);
+    return !!citation && /^PH\d/.test(citation[1]);
+  }
+
+  function spellLookupUrl(spell) {
+    return isCoreSourced(spell.effect) ? d20srdUrl(spell.name) : googleSpellSearchUrl(spell.name);
+  }
 
   /* ---------------------------------------------------------------- *
    * Local-storage helpers (small wrappers so a bad browser setting
@@ -826,12 +841,13 @@
           }),
         ]));
       }
+      const core = isCoreSourced(s.effect);
       const nameLink = el("a", {
-        href: d20srdUrl(s.name),
+        href: spellLookupUrl(s),
         target: "_blank",
         rel: "noopener noreferrer",
         class: "spell-link",
-        title: `Look up ${s.name} on d20srd.org`,
+        title: core ? `Look up ${s.name} on d20srd.org` : `Search Google for ${s.name}`,
       }, [s.name]);
 
       tbody.appendChild(el("tr", {}, [
