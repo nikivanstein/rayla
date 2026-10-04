@@ -22,8 +22,8 @@ const BUFF_LIBRARY = [
   {
     id: "barkskin",
     name: "Barkskin",
-    note: "+2 enhancement bonus to natural armor (PH203)",
-    effects: [{ target: "ac", component: "natural", bonusType: "enhancement", amount: 2 }],
+    note: "+5 enhancement bonus to natural armor at caster level 13 (+2 base, +1/3 levels above 3rd, caps at +5 from CL 12 on) (PH203)",
+    effects: [{ target: "ac", component: "natural", bonusType: "enhancement", amount: 5 }],
   },
   {
     id: "halo-of-sand",
